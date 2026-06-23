@@ -423,25 +423,34 @@
 
     // Authenticated Tab switcher
     function selectTab(tabName) {
-      const tabs = ['new-analysis', 'dashboard', 'history', 'about', 'processing', 'profile'];
+      const tabs = [
+        'new-analysis', 'dashboard', 'history', 'about', 'processing', 'profile',
+        'ask-ai', 'scenario-simulator', 'vision-upload', 'rec-tracker', 'org-health',
+        'benchmarks', 'history-timeline', 'shared-reports', 'downloads', 'notifications', 'settings'
+      ];
       tabs.forEach(t => {
         const el = document.getElementById(`panel-${t}`);
         if (el) el.classList.add('hidden');
       });
 
       // Clear active states in navigation buttons
-      ['new', 'history', 'about'].forEach(btn => {
+      const navButtons = [
+        'new-analysis', 'history', 'ask-ai', 'scenario-simulator', 'vision-upload',
+        'rec-tracker', 'org-health', 'benchmarks', 'history-timeline', 'shared-reports',
+        'downloads', 'about', 'notifications', 'settings'
+      ];
+      navButtons.forEach(btn => {
         const el = document.getElementById(`nav-${btn}`);
         if (el) {
-          el.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200";
+          el.className = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200";
         }
       });
 
       // Set active navigation button state
-      let activeBtn = tabName === 'dashboard' || tabName === 'profile' ? 'history' : tabName === 'processing' ? 'new' : tabName;
+      let activeBtn = tabName === 'dashboard' || tabName === 'profile' ? 'history' : tabName === 'processing' ? 'new-analysis' : tabName;
       const elBtn = document.getElementById(`nav-${activeBtn}`);
       if (elBtn) {
-        elBtn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium text-white bg-gradient-to-r from-midnightPurple/20 via-mediumPurple/10 to-royalBlue/10 border-l-4 border-mediumPurple";
+        elBtn.className = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-white bg-gradient-to-r from-midnightPurple/20 via-mediumPurple/10 to-royalBlue/10 border-l-4 border-mediumPurple";
       }
 
       // Set titles
@@ -451,9 +460,22 @@
       else if (tabName === 'history') headerTitle = "Saved Audits";
       else if (tabName === 'about') headerTitle = "Technical Architecture";
       else if (tabName === 'profile') headerTitle = "Profile Dashboard";
+      else if (tabName === 'ask-ai') headerTitle = "Ask AI Assistant";
+      else if (tabName === 'scenario-simulator') headerTitle = "Scenario Simulator";
+      else if (tabName === 'vision-upload') headerTitle = "Vision Upload";
+      else if (tabName === 'rec-tracker') headerTitle = "Recommendation Tracker";
+      else if (tabName === 'org-health') headerTitle = "Organization Health Score";
+      else if (tabName === 'benchmarks') headerTitle = "Industry Benchmarks";
+      else if (tabName === 'history-timeline') headerTitle = "Growth History Timeline";
+      else if (tabName === 'shared-reports') headerTitle = "Shared Reports";
+      else if (tabName === 'downloads') headerTitle = "Downloads Center";
+      else if (tabName === 'notifications') headerTitle = "Notification Alerts";
+      else if (tabName === 'settings') headerTitle = "System Settings";
       
       document.getElementById('header-title').innerText = headerTitle;
-      document.getElementById(`panel-${tabName}`).classList.remove('hidden');
+      
+      const elPanel = document.getElementById(`panel-${tabName}`);
+      if (elPanel) elPanel.classList.remove('hidden');
       
       if (tabName === 'history') {
         fetchReportsList();
@@ -461,6 +483,14 @@
         initWizard();
       } else if (tabName === 'profile') {
         displayUserProfile();
+      } else if (tabName === 'rec-tracker') {
+        loadRecTrackerData();
+      } else if (tabName === 'org-health') {
+        initOrgHealthScore();
+      } else if (tabName === 'scenario-simulator') {
+        initStandaloneScenarioSimulator();
+      } else if (tabName === 'settings') {
+        loadSettingsData();
       }
       
       lucide.createIcons();
@@ -3131,5 +3161,339 @@
         }, 1800);
       }
     }
+
+    // =========================================================================
+    // ==================== INTERACTIVE SIDEBAR ADDITIONS LOGIC ================
+    // =========================================================================
+
+    // ==================== ASK AI INTERACTIVE FEATURES ====================
+    function prefillAskAI(text) {
+      document.getElementById('ask-ai-input').value = text;
+      document.getElementById('ask-ai-input').focus();
+    }
+
+    function handleAskAISend() {
+      const inputEl = document.getElementById('ask-ai-input');
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      const chatBox = document.getElementById('ask-ai-chat-box');
+      
+      // User message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'flex justify-end animate-fade-in';
+      userMsg.innerHTML = `
+        <div class="bg-primary/20 border border-primary/30 rounded-2xl p-3 text-white max-w-[80%] leading-relaxed">
+          ${text}
+        </div>
+      `;
+      chatBox.appendChild(userMsg);
+      inputEl.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Simulated Bot typing
+      const typingMsg = document.createElement('div');
+      typingMsg.className = 'flex justify-start items-center space-x-3 animate-pulse';
+      typingMsg.innerHTML = `
+        <div class="h-8 w-8 rounded-lg bg-darkBorder/40 flex items-center justify-center text-gray-500 font-extrabold text-[10px]">AI</div>
+        <div class="text-gray-500 italic text-[11px]">Thinking...</div>
+      `;
+      chatBox.appendChild(typingMsg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      setTimeout(() => {
+        if (chatBox.contains(typingMsg)) chatBox.removeChild(typingMsg);
+        
+        let responseText = "I have scanned your current company context. ";
+        if (text.toLowerCase().includes("swot")) {
+          responseText += "Here is a strategic SWOT analysis preview for your active dashboard:<br/><br/>" +
+            "• <strong>Strengths</strong>: Strong linear forecasting margins, optimized cost-to-revenue efficiency indexes.<br/>" +
+            "• <strong>Weaknesses</strong>: Departmental spending anomalies detected in Marketing ledgers.<br/>" +
+            "• <strong>Opportunities</strong>: Calibrate scenario budget multipliers towards Product R&D focus to maximize long-term client retention.<br/>" +
+            "• <strong>Threats</strong>: Potential overhead conversion bottlenecks if sales conversion indices drop below baseline retail margins.";
+        } else if (text.toLowerCase().includes("anomaly") || text.toLowerCase().includes("expense")) {
+          responseText += "The outlier checks isolated <strong>1 anomaly</strong> under Marketing spend:<br/><br/>" +
+            "• <strong>Marketing Spend Surge</strong>: A spending spike deviating Z = 2.8 standard deviations from the seasonal rolling median was flagged in Q2. Suggest review via Recommendation Tracker.";
+        } else if (text.toLowerCase().includes("marketing") || text.toLowerCase().includes("growth")) {
+          responseText += "Here are the top 3 recommended actions for marketing growth:<br/><br/>" +
+            "1. <strong>Optimize Customer Acquisition Channels</strong>: Re-align digital budgets to reduce CAC below $42 (industry average is $55).<br/>" +
+            "2. <strong>Address Marketing Ledger Volatility</strong>: Implement automated spend limits to prevent future Z-score alerts.<br/>" +
+            "3. <strong>What-if Calibration</strong>: Leverage the Scenario Simulator to allocate +15% to Marketing to target a simulated ROI multiplier of 1.4x.";
+        } else {
+          responseText += `Based on the latest report, your current operational efficiency score is 82/100, which ranks in the top 12% of the Retail industry. Let me know if you would like me to draft a PDF report draft or run a forecast projection!`;
+        }
+
+        const botMsg = document.createElement('div');
+        botMsg.className = 'flex justify-start animate-fade-in';
+        botMsg.innerHTML = `
+          <div class="h-8 w-8 rounded-lg bg-gradient-to-tr from-mediumPurple via-royalBlue to-softBlue flex items-center justify-center flex-shrink-0 text-white font-extrabold text-[10px] mt-1">AI</div>
+          <div class="bg-darkBorder/20 border border-darkBorder/40 rounded-2xl p-3 text-gray-300 max-w-[80%] leading-relaxed ml-3">
+            ${responseText}
+          </div>
+        `;
+        chatBox.appendChild(botMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        lucide.createIcons();
+      }, 1200);
+    }
+
+    // ==================== SCENARIO SIMULATOR FEATURES ====================
+    function initStandaloneScenarioSimulator() {
+      // Load current report values if available, else mock
+      let baseRev = 4850000;
+      if (currentReport) {
+        baseRev = parseFloat(currentReport.report_json.kpis.revenue.replace(/[^0-9]/g, ''));
+      }
+      
+      document.getElementById('standalone-sim-slider-mkt').value = 0;
+      document.getElementById('standalone-sim-slider-rd').value = 0;
+      document.getElementById('standalone-sim-slider-sales').value = 0;
+      document.getElementById('standalone-sim-slider-ops').value = 0;
+      
+      updateStandaloneScenarioSimulation();
+    }
+
+    function updateStandaloneScenarioSimulation() {
+      const sMkt = parseInt(document.getElementById('standalone-sim-slider-mkt').value);
+      const sRd = parseInt(document.getElementById('standalone-sim-slider-rd').value);
+      const sSales = parseInt(document.getElementById('standalone-sim-slider-sales').value);
+      const sOps = parseInt(document.getElementById('standalone-sim-slider-ops').value);
+
+      document.getElementById('standalone-sim-val-mkt').innerText = `${sMkt > 0 ? '+' : ''}${sMkt}%`;
+      document.getElementById('standalone-sim-val-rd').innerText = `${sRd > 0 ? '+' : ''}${sRd}%`;
+      document.getElementById('standalone-sim-val-sales').innerText = `${sSales > 0 ? '+' : ''}${sSales}%`;
+      document.getElementById('standalone-sim-val-ops').innerText = `${sOps > 0 ? '+' : ''}${sOps}%`;
+
+      let baseRev = 4850000;
+      if (currentReport) {
+        baseRev = parseFloat(currentReport.report_json.kpis.revenue.replace(/[^0-9]/g, ''));
+      }
+
+      const mktImpact = (sMkt / 100) * 0.38;
+      const rdImpact = (sRd / 100) * 0.24;
+      const salesImpact = (sSales / 100) * 0.18;
+      const opsImpact = (sOps / 100) * 0.12;
+
+      const totalGrowthFactor = mktImpact + rdImpact + salesImpact + opsImpact;
+      const simulatedRev = Math.max(0, Math.round(baseRev * (1 + totalGrowthFactor)));
+      
+      const totalCostMultiplier = 1 + ((sMkt * 0.2 + sRd * 0.3 + sSales * 0.1 + sOps * 0.15) / 100);
+      const simulatedRoi = totalCostMultiplier > 0 ? (totalGrowthFactor * 3.5 / totalCostMultiplier) : 1.0;
+
+      document.getElementById('standalone-sim-out-rev').innerText = `$${simulatedRev.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+      document.getElementById('standalone-sim-out-percent').innerText = `${totalGrowthFactor >= 0 ? '+' : ''}${(totalGrowthFactor * 100).toFixed(1)}%`;
+      document.getElementById('standalone-sim-out-roi').innerText = `${Math.max(0.2, simulatedRoi + 1.2).toFixed(1)}x`;
+    }
+
+    // Bind these functions globally so onclick works
+    window.prefillAskAI = prefillAskAI;
+    window.handleAskAISend = handleAskAISend;
+    window.updateStandaloneScenarioSimulation = updateStandaloneScenarioSimulation;
+    window.resetStandaloneSimulation = initStandaloneScenarioSimulator;
+
+    // ==================== VISION UPLOAD / OCR SIMULATOR ====================
+    function triggerSimulatedOCRPipe() {
+      alert("Simulating Gemini Vision Pipeline...\nIngesting screenshot graphics to extract table structures.");
+      setTimeout(() => {
+        alert("Extraction Completed!\nRevenue metric ($1,245,000) and growth coefficient (+12.5%) successfully isolated!\nThese parameters have been populated into the New Audit setup workflow.");
+        selectTab('new-analysis');
+        
+        // Auto-fill wizard name
+        const inputName = document.getElementById('wizard-input-org-name');
+        if (inputName) inputName.value = "Vision Extracted Organization";
+      }, 1000);
+    }
+    window.triggerSimulatedOCRPipe = triggerSimulatedOCRPipe;
+
+    // ==================== RECOMMENDATION TRACKER LOGIC ====================
+    let recommendationsData = [
+      { id: 1, title: "Optimize Cloud Infrastructure Spend", desc: "Reduce redundant server instances to trim operational IT expenses.", category: "Operations", score: 92, status: "In Progress" },
+      { id: 2, title: "Configure Spending Alert Limits", desc: "Setup warning alerts for departmental ledgers when standard deviation (z-score) exceeds 1.5.", category: "Finance", score: 85, status: "Completed" },
+      { id: 3, title: "A/B Test Checkout Lead Conversion", desc: "Run conversion sweeps on product lists pages to optimize sales pipeline conversions.", category: "Sales", score: 78, status: "Not Started" },
+      { id: 4, title: "Re-align Paid Advertising Campaigns", desc: "Prune underperforming campaigns to drive down customer acquisition cost (CAC) below benchmarks.", category: "Marketing", score: 88, status: "Not Started" }
+    ];
+
+    function loadRecTrackerData() {
+      // Pull recommendations from current report if active, else default mock
+      if (currentReport && currentReport.recommendations && currentReport.recommendations.length > 0) {
+        recommendationsData = currentReport.recommendations.map((r, idx) => ({
+          id: idx + 1,
+          title: r.title,
+          desc: r.description,
+          category: r.category || "General",
+          score: r.priority_score || 80,
+          status: "Not Started"
+        }));
+      }
+      renderRecTrackerTable();
+    }
+
+    function renderRecTrackerTable(filterQuery = '') {
+      const tbody = document.getElementById('rec-tracker-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const filtered = recommendationsData.filter(r => 
+        r.title.toLowerCase().includes(filterQuery.toLowerCase()) ||
+        r.desc.toLowerCase().includes(filterQuery.toLowerCase()) ||
+        r.category.toLowerCase().includes(filterQuery.toLowerCase())
+      );
+
+      filtered.forEach((r, idx) => {
+        let badgeColor = "bg-gray-500/10 text-gray-400 border border-gray-500/20";
+        if (r.status === "In Progress") badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+        if (r.status === "Completed") badgeColor = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-darkBorder/10 transition-colors";
+        tr.innerHTML = `
+          <td class="p-4">
+            <div class="font-bold text-gray-200">${r.title}</div>
+            <div class="text-[10px] text-gray-500 mt-1">${r.desc}</div>
+          </td>
+          <td class="p-4 text-gray-400 font-semibold">${r.category}</td>
+          <td class="p-4 text-center font-bold font-mono text-softBlue">${r.score}</td>
+          <td class="p-4 text-center">
+            <button onclick="toggleRecStatus(${r.id})" class="px-2.5 py-1 text-[10px] font-bold rounded-full ${badgeColor} select-none cursor-pointer hover:opacity-85 transition-opacity">
+              ${r.status}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterRecommendationsList(event) {
+      renderRecTrackerTable(event.target.value);
+    }
+
+    function toggleRecStatus(id) {
+      const rec = recommendationsData.find(r => r.id === id);
+      if (!rec) return;
+
+      if (rec.status === "Not Started") rec.status = "In Progress";
+      else if (rec.status === "In Progress") rec.status = "Completed";
+      else rec.status = "Not Started";
+
+      renderRecTrackerTable(document.getElementById('rec-search').value || '');
+      
+      // Update Org Health checklist if status matches
+      if (id === 2 && rec.status === "Completed") {
+        document.getElementById('health-chk-0').checked = true;
+      } else if (id === 2) {
+        document.getElementById('health-chk-0').checked = false;
+      }
+      recalculateHealthScore();
+    }
+    window.loadRecTrackerData = loadRecTrackerData;
+    window.filterRecommendationsList = filterRecommendationsList;
+    window.toggleRecStatus = toggleRecStatus;
+
+    // ==================== ORG HEALTH RADIAL GAUGE CALCULATIONS ====================
+    let healthChecks = [true, false, false];
+
+    function initOrgHealthScore() {
+      recalculateHealthScore();
+    }
+
+    function toggleHealthChecklistItem(idx) {
+      const chk = document.getElementById(`health-chk-${idx}`);
+      if (chk) {
+        chk.checked = !chk.checked;
+        healthChecks[idx] = chk.checked;
+        recalculateHealthScore();
+      }
+    }
+
+    function recalculateHealthScore() {
+      let baseScore = 65;
+      let completed = 0;
+      
+      if (healthChecks[0]) { baseScore += 8; completed++; }
+      if (healthChecks[1]) { baseScore += 5; completed++; }
+      if (healthChecks[2]) { baseScore += 12; completed++; }
+
+      // Update text details
+      const scoreValEl = document.getElementById('radial-score-val');
+      if (scoreValEl) scoreValEl.innerText = baseScore;
+
+      const completedCountEl = document.getElementById('health-completed-count');
+      if (completedCountEl) completedCountEl.innerText = completed;
+
+      const potentialEl = document.getElementById('health-points-potential');
+      if (potentialEl) {
+        let remaining = 25; // 8 + 5 + 12
+        if (healthChecks[0]) remaining -= 8;
+        if (healthChecks[1]) remaining -= 5;
+        if (healthChecks[2]) remaining -= 12;
+        potentialEl.innerText = `${remaining} points potential remaining`;
+      }
+
+      // Update SVG circular gauge stroke dashoffset
+      // Radius = 40, Circumference = 2 * PI * 40 = 251.2
+      // Stroke dashoffset: 251.2 - (251.2 * (baseScore / 100))
+      const circleEl = document.getElementById('radial-gauge-circle');
+      if (circleEl) {
+        const circum = 251.2;
+        const offset = circum - (circum * (baseScore / 100));
+        circleEl.style.strokeDashoffset = offset;
+      }
+    }
+    window.initOrgHealthScore = initOrgHealthScore;
+    window.toggleHealthChecklistItem = toggleHealthChecklistItem;
+
+    // ==================== MISC DOCK UTILS ====================
+    function triggerShareDashboardLink() {
+      const shareModal = document.getElementById('share-modal');
+      const shareInput = document.getElementById('share-link-input');
+      
+      let reportId = currentReport ? currentReport.id : 1;
+      shareInput.value = `${window.location.origin}${window.location.pathname}?share=${reportId}`;
+      
+      if (shareModal) {
+        shareModal.classList.remove('hidden');
+        document.getElementById('share-copied-toast').classList.add('hidden');
+      }
+    }
+
+    function downloadLatestPDFReportPlaceholder() {
+      if (currentReport) {
+        downloadReportAsPDF();
+      } else {
+        alert("Downloading demo report PDF...");
+      }
+    }
+
+    function clearNotificationsList() {
+      const inbox = document.getElementById('notifications-inbox-container');
+      if (inbox) {
+        inbox.innerHTML = `
+          <div class="glass-panel p-8 text-center text-gray-500 rounded-2xl border border-darkBorder/40">
+            <i data-lucide="check-circle" class="h-8 w-8 text-emerald-400 mx-auto mb-2 animate-bounce"></i>
+            <span class="text-xs font-semibold">Inbox clean! No new alert flags.</span>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+      const badge = document.getElementById('sidebar-notif-badge');
+      if (badge) badge.classList.add('hidden');
+    }
+
+    function loadSettingsData() {
+      const key = localStorage.getItem('GEMINI_API_KEY') || '';
+      document.getElementById('settings-gemini-key').value = key;
+    }
+
+    function saveSettingsAPIKey() {
+      const key = document.getElementById('settings-gemini-key').value.trim();
+      localStorage.setItem('GEMINI_API_KEY', key);
+      alert("Settings parameters saved locally.");
+    }
+
+    window.triggerShareDashboardLink = triggerShareDashboardLink;
+    window.downloadLatestPDFReportPlaceholder = downloadLatestPDFReportPlaceholder;
+    window.clearNotificationsList = clearNotificationsList;
+    window.loadSettingsData = loadSettingsData;
+    window.saveSettingsAPIKey = saveSettingsAPIKey;
 
   

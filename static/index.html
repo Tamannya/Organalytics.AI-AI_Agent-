@@ -732,9 +732,9 @@
     <div id="app-shell" class="hidden min-h-screen flex text-gray-100 font-sans">
       
       <!-- SIDEBAR -->
-      <aside class="w-64 bg-black border-r border-darkBorder flex-col justify-between h-screen sticky top-0 md:flex hidden flex-col justify-between h-screen sticky top-0">
-        <div>
-          <div class="p-6 border-b border-darkBorder flex items-center space-x-3">
+      <aside class="w-64 bg-black border-r border-darkBorder flex flex-col justify-between h-screen sticky top-0 md:flex hidden">
+        <div class="flex flex-col h-full overflow-hidden">
+          <div class="p-6 border-b border-darkBorder flex items-center space-x-3 flex-shrink-0">
             <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-mediumPurple via-royalBlue to-softBlue flex items-center justify-center shadow-lg">
               <i data-lucide="bar-chart-3" class="h-5 w-5 text-white"></i>
             </div>
@@ -744,19 +744,121 @@
             </div>
           </div>
 
-          <nav class="p-4 space-y-1">
-            <button id="nav-new" onclick="selectTab('new-analysis')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
-              <i data-lucide="plus-circle" class="h-5 w-5"></i>
-              <span>New Analysis</span>
-            </button>
-            <button id="nav-history" onclick="selectTab('history')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium text-white bg-gradient-to-r from-mediumPurple/10 to-royalBlue/10 border-l-4 border-mediumPurple">
-              <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-              <span>My Dashboards</span>
-            </button>
-            <button id="nav-about" onclick="selectTab('about')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
-              <i data-lucide="help-circle" class="h-5 w-5"></i>
-              <span>How it Works</span>
-            </button>
+          <nav class="p-4 space-y-4 flex-grow overflow-y-auto scrollbar-thin">
+            <!-- Category: MAIN -->
+            <div class="space-y-1">
+              <div class="text-[9px] uppercase font-bold text-gray-500 tracking-wider px-3.5 py-1">MAIN</div>
+              <button id="nav-new-analysis" onclick="selectTab('new-analysis')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="plus" class="h-4.5 w-4.5"></i>
+                  <span>New Analysis</span>
+                </div>
+              </button>
+              <button id="nav-history" onclick="selectTab('history')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="layout-grid" class="h-4.5 w-4.5"></i>
+                  <span>My Dashboards</span>
+                </div>
+              </button>
+            </div>
+
+            <!-- Category: AI TOOLS -->
+            <div class="space-y-1">
+              <div class="text-[9px] uppercase font-bold text-gray-500 tracking-wider px-3.5 py-1">AI TOOLS</div>
+              <button id="nav-ask-ai" onclick="selectTab('ask-ai')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="message-square" class="h-4.5 w-4.5"></i>
+                  <span>Ask AI</span>
+                </div>
+                <span class="px-1.5 py-0.5 text-[8px] font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/25 rounded uppercase tracking-wider">NEW</span>
+              </button>
+              <button id="nav-scenario-simulator" onclick="selectTab('scenario-simulator')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="sliders" class="h-4.5 w-4.5"></i>
+                  <span>Scenario Simulator</span>
+                </div>
+                <span class="px-1.5 py-0.5 text-[8px] font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/25 rounded uppercase tracking-wider">NEW</span>
+              </button>
+              <button id="nav-vision-upload" onclick="selectTab('vision-upload')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="camera" class="h-4.5 w-4.5"></i>
+                  <span>Vision Upload</span>
+                </div>
+                <span class="px-1.5 py-0.5 text-[8px] font-extrabold text-amber-400 bg-amber-500/10 border border-amber-500/25 rounded uppercase tracking-wider">HOT</span>
+              </button>
+            </div>
+
+            <!-- Category: INSIGHTS -->
+            <div class="space-y-1">
+              <div class="text-[9px] uppercase font-bold text-gray-500 tracking-wider px-3.5 py-1">INSIGHTS</div>
+              <button id="nav-rec-tracker" onclick="selectTab('rec-tracker')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="clipboard-list" class="h-4.5 w-4.5"></i>
+                  <span>Rec. Tracker</span>
+                </div>
+                <span class="px-1.5 py-0.5 text-[8px] font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/25 rounded uppercase tracking-wider">NEW</span>
+              </button>
+              <button id="nav-org-health" onclick="selectTab('org-health')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="award" class="h-4.5 w-4.5"></i>
+                  <span>Org Health Score</span>
+                </div>
+              </button>
+              <button id="nav-benchmarks" onclick="selectTab('benchmarks')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="bar-chart-2" class="h-4.5 w-4.5"></i>
+                  <span>Benchmarks</span>
+                </div>
+              </button>
+              <button id="nav-history-timeline" onclick="selectTab('history-timeline')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="history" class="h-4.5 w-4.5"></i>
+                  <span>History Timeline</span>
+                </div>
+              </button>
+            </div>
+
+            <!-- Category: REPORTS -->
+            <div class="space-y-1">
+              <div class="text-[9px] uppercase font-bold text-gray-500 tracking-wider px-3.5 py-1">REPORTS</div>
+              <button id="nav-shared-reports" onclick="selectTab('shared-reports')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="share-2" class="h-4.5 w-4.5"></i>
+                  <span>Shared Reports</span>
+                </div>
+                <span class="px-1.5 py-0.5 text-[8px] font-extrabold text-gray-400 bg-gray-500/10 border border-gray-500/25 rounded uppercase tracking-wider">SOON</span>
+              </button>
+              <button id="nav-downloads" onclick="selectTab('downloads')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="download" class="h-4.5 w-4.5"></i>
+                  <span>Downloads</span>
+                </div>
+              </button>
+            </div>
+
+            <!-- Category: ACCOUNT -->
+            <div class="space-y-1">
+              <div class="text-[9px] uppercase font-bold text-gray-500 tracking-wider px-3.5 py-1">ACCOUNT</div>
+              <button id="nav-about" onclick="selectTab('about')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="help-circle" class="h-4.5 w-4.5"></i>
+                  <span>How it Works</span>
+                </div>
+              </button>
+              <button id="nav-notifications" onclick="selectTab('notifications')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="bell" class="h-4.5 w-4.5"></i>
+                  <span>Notifications</span>
+                </div>
+                <span id="sidebar-notif-badge" class="h-4.5 w-4.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-bold rounded-full flex items-center justify-center border border-indigo-500/30">3</span>
+              </button>
+              <button id="nav-settings" onclick="selectTab('settings')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="settings" class="h-4.5 w-4.5"></i>
+                  <span>Settings</span>
+                </div>
+              </button>
+            </div>
           </nav>
         </div>
 
@@ -2041,6 +2143,647 @@
               </div>
             </div>
           </div>
+
+
+          <!-- ==================== PANEL: ASK AI ==================== -->
+          <div id="panel-ask-ai" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="border-b border-darkBorder/40 pb-5">
+              <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Ask AI Assistant</h2>
+              <p class="text-sm text-gray-500 mt-1">Converse with Gemini to audit spreadsheets, create growth recommendations, or draft SWOT lists.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <!-- Chat History Container -->
+              <div class="lg:col-span-3 glass-panel rounded-2xl border border-darkBorder/50 flex flex-col h-[550px] shadow-xl overflow-hidden">
+                <div id="ask-ai-chat-box" class="flex-grow overflow-y-auto p-4 space-y-4 font-sans text-xs">
+                  <!-- System Welcome -->
+                  <div class="flex items-start space-x-3">
+                    <div class="h-8 w-8 rounded-lg bg-gradient-to-tr from-mediumPurple via-royalBlue to-softBlue flex items-center justify-center flex-shrink-0 text-white font-extrabold text-[10px]">AI</div>
+                    <div class="bg-darkBorder/20 border border-darkBorder/40 rounded-2xl p-3 text-gray-300 max-w-[80%] leading-relaxed">
+                      Hello! I'm your Organalytics AI Agent. I can help query your uploaded datasets, brainstorm strategies, or build forecasts. How can I help you today?
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="p-3 border-t border-darkBorder bg-black flex space-x-2 flex-shrink-0">
+                  <input type="text" id="ask-ai-input" placeholder="Ask about spend anomalies, forecasts, or growth advice..." onkeydown="if(event.key==='Enter') handleAskAISend()" class="flex-grow bg-darkCard border border-darkBorder rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-softBlue/60 text-white placeholder-gray-600" />
+                  <button onclick="handleAskAISend()" class="px-4 py-3 bg-mediumPurple rounded-xl text-white hover:opacity-90 transition-opacity flex items-center justify-center">
+                    <i data-lucide="send" class="h-4.5 w-4.5"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Sidebar Suggestions -->
+              <div class="space-y-4">
+                <div class="glass-panel p-4 rounded-xl border border-darkBorder/40">
+                  <h4 class="text-xs font-bold text-gray-300 uppercase tracking-wide mb-3">Suggested Queries</h4>
+                  <div class="space-y-2">
+                    <button onclick="prefillAskAI('Draft a strategic SWOT analysis based on current KPIs')" class="w-full text-left p-2.5 bg-black hover:bg-darkCard border border-darkBorder hover:border-softBlue/30 text-gray-400 hover:text-white rounded-lg transition-all text-[11px] leading-snug">
+                      📋 Draft a strategic SWOT audit
+                    </button>
+                    <button onclick="prefillAskAI('Are there any cost overrides or expense anomalies?')" class="w-full text-left p-2.5 bg-black hover:bg-darkCard border border-darkBorder hover:border-softBlue/30 text-gray-400 hover:text-white rounded-lg transition-all text-[11px] leading-snug">
+                      ⚠️ Find departmental spending anomalies
+                    </button>
+                    <button onclick="prefillAskAI('Suggest 3 prioritised marketing growth strategies')" class="w-full text-left p-2.5 bg-black hover:bg-darkCard border border-darkBorder hover:border-softBlue/30 text-gray-400 hover:text-white rounded-lg transition-all text-[11px] leading-snug">
+                      🚀 Brainstorm marketing tactics
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== PANEL: SCENARIO SIMULATOR ==================== -->
+          <div id="panel-scenario-simulator" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="border-b border-darkBorder/40 pb-5">
+              <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Advanced What-If Simulator</h2>
+              <p class="text-sm text-gray-500 mt-1">Calibrate departmental investment variables to dynamically simulate growth ratios and ROI values.</p>
+            </div>
+            
+            <div class="glass-panel rounded-3xl border border-darkBorder/50 p-8 shadow-xl space-y-8 glow-border-blue">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                  <h3 class="font-outfit font-bold text-white text-base">Calibrate Strategic Budget Shifts</h3>
+                  
+                  <!-- Slider 1 -->
+                  <div class="space-y-2">
+                    <div class="flex justify-between text-xs font-semibold text-gray-300">
+                      <span>Marketing Spend</span>
+                      <span id="standalone-sim-val-mkt" class="text-softBlue">0%</span>
+                    </div>
+                    <input type="range" id="standalone-sim-slider-mkt" min="-50" max="100" value="0" oninput="updateStandaloneScenarioSimulation()" class="w-full h-1 bg-darkBorder rounded-lg appearance-none cursor-pointer accent-softBlue" />
+                    <span class="text-[10px] text-gray-500 block">Direct correlation to inbound traffic acquisition volume</span>
+                  </div>
+
+                  <!-- Slider 2 -->
+                  <div class="space-y-2">
+                    <div class="flex justify-between text-xs font-semibold text-gray-300">
+                      <span>Product / R&D Focus</span>
+                      <span id="standalone-sim-val-rd" class="text-softBlue">0%</span>
+                    </div>
+                    <input type="range" id="standalone-sim-slider-rd" min="-50" max="100" value="0" oninput="updateStandaloneScenarioSimulation()" class="w-full h-1 bg-darkBorder rounded-lg appearance-none cursor-pointer accent-softBlue" />
+                    <span class="text-[10px] text-gray-500 block">Optimizes software velocity & customer retention loops</span>
+                  </div>
+
+                  <!-- Slider 3 -->
+                  <div class="space-y-2">
+                    <div class="flex justify-between text-xs font-semibold text-gray-300">
+                      <span>Sales Team Scaling</span>
+                      <span id="standalone-sim-val-sales" class="text-softBlue">0%</span>
+                    </div>
+                    <input type="range" id="standalone-sim-slider-sales" min="-50" max="100" value="0" oninput="updateStandaloneScenarioSimulation()" class="w-full h-1 bg-darkBorder rounded-lg appearance-none cursor-pointer accent-softBlue" />
+                    <span class="text-[10px] text-gray-500 block">Drives pipeline conversion coefficients</span>
+                  </div>
+
+                  <!-- Slider 4 -->
+                  <div class="space-y-2">
+                    <div class="flex justify-between text-xs font-semibold text-gray-300">
+                      <span>Operations / Overhead Efficiency</span>
+                      <span id="standalone-sim-val-ops" class="text-softBlue">0%</span>
+                    </div>
+                    <input type="range" id="standalone-sim-slider-ops" min="-50" max="100" value="0" oninput="updateStandaloneScenarioSimulation()" class="w-full h-1 bg-darkBorder rounded-lg appearance-none cursor-pointer accent-softBlue" />
+                    <span class="text-[10px] text-gray-500 block">Reduces administrative bottlenecks & fulfillment friction</span>
+                  </div>
+                </div>
+
+                <div class="flex flex-col justify-between p-6 bg-black/60 border border-darkBorder rounded-2xl h-full space-y-6">
+                  <div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wide">Predictive Analysis Output</h4>
+                    <p class="text-[10px] text-gray-600 mt-0.5">Calculated using live SHAP feature contribution matrices</p>
+                  </div>
+                  
+                  <div class="space-y-4 flex-grow flex flex-col justify-center">
+                    <div>
+                      <span class="text-xs text-gray-500 uppercase tracking-widest font-semibold block">Simulated Revenue Target</span>
+                      <div class="flex items-baseline space-x-2 mt-1">
+                        <span id="standalone-sim-out-rev" class="text-3xl font-extrabold text-white font-outfit">$4,850,000</span>
+                        <span id="standalone-sim-out-percent" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">+0.0%</span>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-darkBorder/40">
+                      <div>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold block">Simulated ROI Factor</span>
+                        <span id="standalone-sim-out-roi" class="text-xl font-bold text-softBlue font-outfit mt-0.5 block">1.2x</span>
+                      </div>
+                      <div>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold block">Confidence Interval</span>
+                        <span class="text-xl font-bold text-emerald-400 font-outfit mt-0.5 block">94%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button onclick="resetStandaloneSimulation()" class="w-full py-3 bg-darkCard border border-darkBorder hover:border-softBlue/30 text-xs text-gray-300 hover:text-white font-bold rounded-xl transition-all">
+                    Reset Simulator Variables
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== PANEL: VISION UPLOAD ==================== -->
+          <div id="panel-vision-upload" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="border-b border-darkBorder/40 pb-5">
+              <div class="flex items-center space-x-3">
+                <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Vision Upload</h2>
+                <span class="px-2 py-0.5 text-[9px] font-extrabold text-amber-400 bg-amber-500/10 border border-amber-500/25 rounded uppercase tracking-widest font-mono">HOT</span>
+              </div>
+              <p class="text-sm text-gray-500 mt-1">Drop dashboard screenshots (Power BI, Tableau, Excel sheets) to parse text structures and ingest metrics.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div class="space-y-6">
+                <!-- Drop Zone -->
+                <div onclick="triggerSimulatedOCRPipe()" class="glass-panel border-2 border-dashed border-darkBorder hover:border-softBlue/40 rounded-3xl p-10 text-center flex flex-col justify-center items-center h-72 cursor-pointer transition-all duration-300 relative group">
+                  <div class="h-14 w-14 rounded-full bg-softBlue/10 text-softBlue flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i data-lucide="image" class="h-6 w-6"></i>
+                  </div>
+                  <h3 class="font-outfit font-bold text-white text-base">Drop your dashboard image or PDF</h3>
+                  <p class="text-gray-500 text-xs mt-1.5 leading-relaxed">PNG, JPG, WEBP, PDF up to 10MB</p>
+                  <button class="mt-4 px-4 py-2 bg-darkCard border border-darkBorder rounded-xl text-xs text-gray-300 hover:text-white hover:border-softBlue/30 font-bold transition-all">
+                    Choose File
+                  </button>
+                </div>
+
+                <!-- API Warning -->
+                <div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start space-x-3 text-amber-400 text-xs">
+                  <i data-lucide="alert-circle" class="h-5 w-5 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <h4 class="font-bold">Gemini API Key Required for Live OCR</h4>
+                    <p class="text-[11px] text-gray-400 mt-1 leading-relaxed">To parse custom screenshots dynamically, please enter your Gemini API Key in the Settings page. If no key is set, we will run a high-fidelity visual simulator demonstrating the extractor engine.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Simulator Graphic / Visualizer -->
+              <div class="glass-panel p-6 rounded-3xl border border-darkBorder/60 shadow-xl flex flex-col justify-between h-full space-y-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-amber-400 to-mediumPurple animate-pulse"></div>
+                <div>
+                  <h3 class="font-outfit font-bold text-white text-base">Visual Extraction Mockup</h3>
+                  <p class="text-xs text-gray-500 mt-0.5">Engine bounding boxes rendering and text matching matrix</p>
+                </div>
+
+                <div class="relative bg-black rounded-xl border border-darkBorder/40 h-56 flex items-center justify-center overflow-hidden">
+                  <!-- Simulated Dashboard Image -->
+                  <div class="w-full h-full p-4 flex flex-col justify-between opacity-75 font-mono text-[9px] text-gray-500 select-none">
+                    <div class="flex justify-between border-b border-darkBorder pb-2">
+                      <span>SALES DASHBOARD</span>
+                      <span>Q2 2026</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 flex-grow items-center py-4">
+                      <div class="border border-darkBorder p-2 rounded">
+                        <span>REVENUE</span>
+                        <div class="text-xs font-bold text-gray-300">$1,245,000</div>
+                      </div>
+                      <div class="border border-darkBorder p-2 rounded">
+                        <span>GROWTH</span>
+                        <div class="text-xs font-bold text-gray-300">+12.5%</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Glowing OCR Bounding Box overlays -->
+                  <div class="absolute top-8 left-6 border-2 border-emerald-500 bg-emerald-500/10 px-1 rounded animate-pulse" style="font-size: 7px;">
+                    <span class="text-emerald-400 font-bold tracking-wider">[REVENUE: $1.24M]</span>
+                  </div>
+                  <div class="absolute bottom-8 right-6 border-2 border-softBlue bg-softBlue/10 px-1 rounded animate-pulse" style="font-size: 7px;">
+                    <span class="text-softBlue font-bold tracking-wider">[GROWTH: +12.5%]</span>
+                  </div>
+                </div>
+
+                <button onclick="triggerSimulatedOCRPipe()" class="w-full py-3 bg-gradient-to-r from-mediumPurple to-royalBlue hover:opacity-95 text-xs text-white font-bold rounded-xl shadow-md transition-all">
+                  Simulate Extractor Pipeline
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== PANEL: REC TRACKER ==================== -->
+          <div id="panel-rec-tracker" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-darkBorder/40 pb-5 gap-4">
+              <div>
+                <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Recommendation Tracker</h2>
+                <p class="text-sm text-gray-500 mt-1">Audit, edit, and keep track of priority growth tactics generated for your organization.</p>
+              </div>
+              <div class="relative w-full md:w-64">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                  <i data-lucide="search" class="h-4 w-4"></i>
+                </span>
+                <input type="text" id="rec-search" oninput="filterRecommendationsList(event)" placeholder="Search tasks..." class="w-full pl-9 pr-4 py-2.5 bg-black border border-darkBorder rounded-xl text-xs text-white focus:outline-none focus:border-softBlue/60 placeholder-gray-600 transition-colors" />
+              </div>
+            </div>
+            
+            <div class="glass-panel rounded-2xl border border-darkBorder/50 shadow-xl overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-black text-gray-400 font-bold uppercase tracking-wider border-b border-darkBorder">
+                    <tr>
+                      <th class="p-4">Tactic / Description</th>
+                      <th class="p-4 w-32">Category</th>
+                      <th class="p-4 w-24 text-center">Score</th>
+                      <th class="p-4 w-36 text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rec-tracker-tbody" class="divide-y divide-darkBorder/40 text-gray-300">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== PANEL: ORG HEALTH SCORE ==================== -->
+          <div id="panel-org-health" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="border-b border-darkBorder/40 pb-5">
+              <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Organization Health Audit</h2>
+              <p class="text-sm text-gray-500 mt-1">A gamified check combining core KPIs, spending volatility, and strategy completion indexes.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Radial score card -->
+              <div class="glass-panel rounded-3xl border border-darkBorder/50 p-6 flex flex-col items-center justify-between shadow-xl min-h-[350px]">
+                <h3 class="font-outfit font-bold text-white text-base">Overall Health</h3>
+                
+                <!-- Animated SVG circular gauge -->
+                <div class="relative w-40 h-40 flex items-center justify-center mt-4">
+                  <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <!-- Base Track -->
+                    <circle cx="50" cy="50" r="40" stroke="rgba(31, 15, 62, 0.4)" stroke-width="8" fill="transparent" />
+                    <!-- Score Arc -->
+                    <circle id="radial-gauge-circle" cx="50" cy="50" r="40" stroke="url(#radialGradient)" stroke-width="8" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="45" stroke-linecap="round" class="transition-all duration-700 ease-out" />
+                    
+                    <defs>
+                      <linearGradient id="radialGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#512E8B" />
+                        <stop offset="50%" stop-color="#3F7FDE" />
+                        <stop offset="100%" stop-color="#8DA8FF" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div class="absolute text-center">
+                    <span id="radial-score-val" class="text-4xl font-extrabold font-outfit text-white block">82</span>
+                    <span class="text-[9px] text-gray-500 uppercase tracking-widest font-semibold font-mono">Good</span>
+                  </div>
+                </div>
+
+                <span class="text-[10px] text-gray-500 text-center leading-normal max-w-xs block mt-2">Combined efficiency index computed from seasonal standard deviations and conversion ratios.</span>
+              </div>
+
+              <!-- Checklist Action panel -->
+              <div class="md:col-span-2 glass-panel rounded-3xl border border-darkBorder/50 p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                  <h3 class="font-outfit font-bold text-white text-base">Improvement Action Checklist</h3>
+                  <p class="text-xs text-gray-500 mt-0.5">Toggle audited tasks to dynamically calibrate overall organizational health score</p>
+                </div>
+                
+                <div class="space-y-4 my-6">
+                  <!-- Task 1 -->
+                  <div onclick="toggleHealthChecklistItem(0)" class="flex items-center justify-between p-3.5 bg-black/60 border border-darkBorder hover:border-softBlue/30 rounded-xl cursor-pointer transition-all">
+                    <div class="flex items-center space-x-3">
+                      <input type="checkbox" id="health-chk-0" checked class="h-4.5 w-4.5 rounded border-darkBorder bg-black text-[#54E1EF] focus:ring-[#54E1EF]" />
+                      <label for="health-chk-0" class="text-xs font-semibold text-gray-200 cursor-pointer">Configure Automated Z-Score Spend Monitors</label>
+                    </div>
+                    <span class="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-mono">+8 PTS</span>
+                  </div>
+
+                  <!-- Task 2 -->
+                  <div onclick="toggleHealthChecklistItem(1)" class="flex items-center justify-between p-3.5 bg-black/60 border border-darkBorder hover:border-softBlue/30 rounded-xl cursor-pointer transition-all">
+                    <div class="flex items-center space-x-3">
+                      <input type="checkbox" id="health-chk-1" class="h-4.5 w-4.5 rounded border-darkBorder bg-black text-[#54E1EF] focus:ring-[#54E1EF]" />
+                      <label for="health-chk-1" class="text-xs font-semibold text-gray-200 cursor-pointer">Clean up Redundant Departmental Software Licenses</label>
+                    </div>
+                    <span class="text-[9px] text-softBlue font-bold bg-softBlue/10 px-2 py-0.5 rounded border border-softBlue/20 font-mono">+5 PTS</span>
+                  </div>
+
+                  <!-- Task 3 -->
+                  <div onclick="toggleHealthChecklistItem(2)" class="flex items-center justify-between p-3.5 bg-black/60 border border-darkBorder hover:border-softBlue/30 rounded-xl cursor-pointer transition-all">
+                    <div class="flex items-center space-x-3">
+                      <input type="checkbox" id="health-chk-2" class="h-4.5 w-4.5 rounded border-darkBorder bg-black text-[#54E1EF] focus:ring-[#54E1EF]" />
+                      <label for="health-chk-2" class="text-xs font-semibold text-gray-200 cursor-pointer">Optimize Inventory Conversion & Lead Bottlenecks</label>
+                    </div>
+                    <span class="text-[9px] text-softBlue font-bold bg-softBlue/10 px-2 py-0.5 rounded border border-softBlue/20 font-mono">+12 PTS</span>
+                  </div>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-gray-500 border-t border-darkBorder/40 pt-4">
+                  <span>Completed: <span id="health-completed-count" class="font-bold text-gray-300">1</span> of <span class="font-bold">3</span> actions</span>
+                  <span id="health-points-potential" class="text-softBlue font-semibold">17 points potential remaining</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== PANEL: BENCHMARKS ==================== -->
+          <div id="panel-benchmarks" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="border-b border-darkBorder/40 pb-5">
+              <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Industry Benchmarks</h2>
+              <p class="text-sm text-gray-500 mt-1">Cross-examine your organization's statistics against sector averages compiled from active corporate databases.</p>
+            </div>
+            
+            <!-- Cards list -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Benchmark Card 1 -->
+              <div class="glass-panel p-6 rounded-2xl border border-darkBorder/50 shadow-md space-y-4">
+                <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/25 uppercase tracking-wider font-mono">TOP 12% IN SECTOR</span>
+                <div>
+                  <h4 class="text-gray-400 text-xs font-bold uppercase tracking-wider">Operational Efficiency Ratio</h4>
+                  <div class="flex items-baseline space-x-1.5 mt-2">
+                    <span class="text-2xl font-bold text-white font-outfit">1.35x</span>
+                    <span class="text-gray-500 text-[11px]">vs 1.12x (Avg)</span>
+                  </div>
+                </div>
+                <div class="w-full bg-darkBorder/30 h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-emerald-500 h-full rounded-full" style="width: 82%"></div>
+                </div>
+                <p class="text-[10px] text-gray-500 leading-normal">Your departmental spending efficiency ratio outperforms average retail sectors by +20%.</p>
+              </div>
+
+              <!-- Benchmark Card 2 -->
+              <div class="glass-panel p-6 rounded-2xl border border-darkBorder/50 shadow-md space-y-4">
+                <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/25 uppercase tracking-wider font-mono">EXCELLENT</span>
+                <div>
+                  <h4 class="text-gray-400 text-xs font-bold uppercase tracking-wider">Customer Acquisition Cost (CAC)</h4>
+                  <div class="flex items-baseline space-x-1.5 mt-2">
+                    <span class="text-2xl font-bold text-white font-outfit">$42</span>
+                    <span class="text-gray-500 text-[11px]">vs $55 (Avg)</span>
+                  </div>
+                </div>
+                <div class="w-full bg-darkBorder/30 h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-emerald-500 h-full rounded-full" style="width: 76%"></div>
+                </div>
+                <p class="text-[10px] text-gray-500 leading-normal">Inbound conversion channels are highly optimized, lowering your CAC coefficient below sector benchmarks.</p>
+              </div>
+
+              <!-- Benchmark Card 3 -->
+              <div class="glass-panel p-6 rounded-2xl border border-darkBorder/50 shadow-md space-y-4">
+                <span class="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/25 uppercase tracking-wider font-mono">NEEDS ATTENTION</span>
+                <div>
+                  <h4 class="text-gray-400 text-xs font-bold uppercase tracking-wider">Employee Turnover Rate</h4>
+                  <div class="flex items-baseline space-x-1.5 mt-2">
+                    <span class="text-2xl font-bold text-white font-outfit">14.5%</span>
+                    <span class="text-gray-500 text-[11px]">vs 12.0% (Avg)</span>
+                  </div>
+                </div>
+                <div class="w-full bg-darkBorder/30 h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-rose-500 h-full rounded-full" style="width: 45%"></div>
+                </div>
+                <p class="text-[10px] text-gray-500 leading-normal">Operational headcount turnover is slightly elevated, suggesting potential bottlenecks in engagement policies.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== PANEL: HISTORY TIMELINE ==================== -->
+          <div id="panel-history-timeline" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="border-b border-darkBorder/40 pb-5">
+              <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Growth History Timeline</h2>
+              <p class="text-sm text-gray-500 mt-1">Browse a sequential longitudinal audit showing the evolution of metrics across multiple monthly reports.</p>
+            </div>
+            
+            <div class="relative pl-8 border-l border-darkBorder/60 space-y-10 py-4 max-w-xl mx-auto">
+              <!-- Node 1 -->
+              <div class="relative">
+                <span class="absolute -left-[41px] top-1.5 h-6 w-6 rounded-full border border-softBlue bg-black flex items-center justify-center text-softBlue"><i data-lucide="check" class="h-3 w-3"></i></span>
+                <div class="glass-panel p-5 rounded-2xl border border-darkBorder/50 space-y-2">
+                  <span class="text-[10px] text-gray-500 font-bold font-mono">JUNE 2026</span>
+                  <h4 class="font-outfit font-bold text-white text-base">Q2 Operational Performance Audit</h4>
+                  <div class="grid grid-cols-3 gap-2 py-1 text-[10px]">
+                    <div><span class="text-gray-500 uppercase font-semibold">Revenue</span><span class="text-white font-bold block">$4.85M</span></div>
+                    <div><span class="text-gray-500 uppercase font-semibold">YoY Growth</span><span class="text-emerald-400 font-bold block">+14.2%</span></div>
+                    <div><span class="text-gray-500 uppercase font-semibold">Z-Score anomalies</span><span class="text-gray-400 block font-semibold">Clean</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Node 2 -->
+              <div class="relative">
+                <span class="absolute -left-[41px] top-1.5 h-6 w-6 rounded-full border border-softBlue bg-black flex items-center justify-center text-softBlue"><i data-lucide="check" class="h-3 w-3"></i></span>
+                <div class="glass-panel p-5 rounded-2xl border border-darkBorder/50 space-y-2">
+                  <span class="text-[10px] text-gray-500 font-bold font-mono">APRIL 2026</span>
+                  <h4 class="font-outfit font-bold text-white text-base">Initial Fiscal Health Check</h4>
+                  <div class="grid grid-cols-3 gap-2 py-1 text-[10px]">
+                    <div><span class="text-gray-500 uppercase font-semibold">Revenue</span><span class="text-white font-bold block">$4.10M</span></div>
+                    <div><span class="text-gray-500 uppercase font-semibold">YoY Growth</span><span class="text-emerald-400 font-bold block">+10.5%</span></div>
+                    <div><span class="text-gray-500 uppercase font-semibold">Z-Score anomalies</span><span class="text-rose-400 block font-bold">2 Alerts</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Node 3 -->
+              <div class="relative">
+                <span class="absolute -left-[41px] top-1.5 h-6 w-6 rounded-full border border-darkBorder bg-black flex items-center justify-center text-gray-600"><i data-lucide="lock" class="h-3 w-3"></i></span>
+                <div class="glass-panel p-5 rounded-2xl border border-darkBorder/50 space-y-2 opacity-65">
+                  <span class="text-[10px] text-gray-500 font-bold font-mono">JANUARY 2026</span>
+                  <h4 class="font-outfit font-bold text-white text-base">Mock Budget Blueprint</h4>
+                  <div class="grid grid-cols-3 gap-2 py-1 text-[10px]">
+                    <div><span class="text-gray-500 uppercase font-semibold">Revenue</span><span class="text-white font-bold block">$3.50M</span></div>
+                    <div><span class="text-gray-500 uppercase font-semibold">YoY Growth</span><span class="text-emerald-400 font-bold block">+8.2%</span></div>
+                    <div><span class="text-gray-500 uppercase font-semibold">Z-Score anomalies</span><span class="text-gray-400 block font-semibold">Clean</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== PANEL: SHARED REPORTS ==================== -->
+          <div id="panel-shared-reports" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="flex justify-between items-center border-b border-darkBorder/40 pb-5">
+              <div>
+                <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Shared Reports</h2>
+                <p class="text-sm text-gray-500 mt-1">Administer external stakeholder links, view counts, access permissions, and revoke privileges.</p>
+              </div>
+              <button onclick="triggerShareDashboardLink()" class="px-5 py-2.5 bg-gradient-to-r from-mediumPurple to-softBlue text-white font-bold text-xs rounded-xl shadow-md flex items-center space-x-1.5">
+                <i data-lucide="link" class="h-3.5 w-3.5"></i>
+                <span>Create New Link</span>
+              </button>
+            </div>
+            
+            <div class="glass-panel rounded-2xl border border-darkBorder/50 shadow-xl overflow-hidden">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-black text-gray-400 font-bold uppercase tracking-wider border-b border-darkBorder">
+                  <tr>
+                    <th class="p-4">Report Name</th>
+                    <th class="p-4 w-32 text-center">Shared Date</th>
+                    <th class="p-4 w-28 text-center">Status</th>
+                    <th class="p-4 w-24 text-center">Views</th>
+                    <th class="p-4 w-24 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-darkBorder/40 text-gray-300">
+                  <tr>
+                    <td class="p-4 font-semibold text-white">Blinkit Commerce Growth Audit</td>
+                    <td class="p-4 text-center text-gray-500">2026-06-20</td>
+                    <td class="p-4 text-center"><span class="px-2 py-0.5 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full">Active</span></td>
+                    <td class="p-4 text-center font-bold font-mono">14</td>
+                    <td class="p-4 text-center"><button onclick="alert('Access privilege revoked.')" class="text-rose-400 hover:text-rose-300 font-bold">Revoke</button></td>
+                  </tr>
+                  <tr>
+                    <td class="p-4 font-semibold text-white opacity-60">SaaS Conversion Analysis (Expired)</td>
+                    <td class="p-4 text-center text-gray-500 opacity-60">2026-04-12</td>
+                    <td class="p-4 text-center opacity-60"><span class="px-2 py-0.5 text-[10px] font-semibold text-gray-500 bg-black border border-darkBorder rounded-full">Expired</span></td>
+                    <td class="p-4 text-center font-bold font-mono opacity-60">28</td>
+                    <td class="p-4 text-center opacity-60"><span class="text-gray-600 font-bold">Closed</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ==================== PANEL: DOWNLOADS ==================== -->
+          <div id="panel-downloads" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="border-b border-darkBorder/40 pb-5">
+              <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Downloads Center</h2>
+              <p class="text-sm text-gray-500 mt-1">Re-download previously compiled growth audit reports, view generation parameters, and review file metadata.</p>
+            </div>
+            
+            <div class="glass-panel rounded-2xl border border-darkBorder/50 shadow-xl overflow-hidden">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-black text-gray-400 font-bold uppercase tracking-wider border-b border-darkBorder">
+                  <tr>
+                    <th class="p-4">Report File Name</th>
+                    <th class="p-4 w-32 text-center">Date Generated</th>
+                    <th class="p-4 w-28 text-center">Theme Theme</th>
+                    <th class="p-4 w-24 text-center">File Size</th>
+                    <th class="p-4 w-24 text-center">Download</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-darkBorder/40 text-gray-300">
+                  <tr>
+                    <td class="p-4 font-semibold text-white flex items-center space-x-2">
+                      <i data-lucide="file-text" class="h-4.5 w-4.5 text-red-400"></i>
+                      <span>OrgAnalytics_Retail_Growth_Report_2026-06-24.pdf</span>
+                    </td>
+                    <td class="p-4 text-center text-gray-500 font-mono">2026-06-24</td>
+                    <td class="p-4 text-center"><span class="px-2 py-0.5 text-[10px] font-semibold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-full">Midnight Purple</span></td>
+                    <td class="p-4 text-center font-bold font-mono">245 KB</td>
+                    <td class="p-4 text-center">
+                      <button onclick="downloadLatestPDFReportPlaceholder()" class="p-1.5 bg-darkCard border border-darkBorder hover:border-softBlue/30 hover:bg-darkBorder/20 rounded-lg text-gray-300 hover:text-white transition-colors">
+                        <i data-lucide="download" class="h-4 w-4"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="p-4 font-semibold text-white flex items-center space-x-2">
+                      <i data-lucide="file-text" class="h-4.5 w-4.5 text-red-400"></i>
+                      <span>OrgAnalytics_SaaS_Audit_2026-04-12.pdf</span>
+                    </td>
+                    <td class="p-4 text-center text-gray-500 font-mono">2026-04-12</td>
+                    <td class="p-4 text-center"><span class="px-2 py-0.5 text-[10px] font-semibold text-softBlue bg-softBlue/10 border border-softBlue/20 rounded-full">Ocean Blue</span></td>
+                    <td class="p-4 text-center font-bold font-mono">188 KB</td>
+                    <td class="p-4 text-center">
+                      <button onclick="alert('Downloading archived report...')" class="p-1.5 bg-darkCard border border-darkBorder hover:border-softBlue/30 hover:bg-darkBorder/20 rounded-lg text-gray-300 hover:text-white transition-colors">
+                        <i data-lucide="download" class="h-4 w-4"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ==================== PANEL: NOTIFICATIONS ==================== -->
+          <div id="panel-notifications" class="hidden space-y-6 max-w-2xl mx-auto">
+            <div class="flex justify-between items-center border-b border-darkBorder/40 pb-5">
+              <div>
+                <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Notification Alerts</h2>
+                <p class="text-sm text-gray-500 mt-1">Audit log of system alerts, anomaly flags, and stakeholders reports access.</p>
+              </div>
+              <button onclick="clearNotificationsList()" class="px-4 py-2 bg-darkCard border border-darkBorder hover:border-softBlue/30 text-gray-300 hover:text-white font-bold text-xs rounded-xl transition-all">
+                Mark All as Read
+              </button>
+            </div>
+            
+            <div class="space-y-4" id="notifications-inbox-container">
+              <!-- Item 1 -->
+              <div class="glass-panel p-4.5 rounded-2xl border border-darkBorder/50 flex items-start space-x-3.5 glow-border">
+                <span class="h-8 w-8 rounded-full bg-rose-500/10 border border-rose-500/25 text-rose-400 flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="alert-triangle" class="h-4.5 w-4.5"></i></span>
+                <div class="space-y-1 flex-grow">
+                  <div class="flex justify-between items-baseline">
+                    <h4 class="font-bold text-gray-200 text-xs">Operational Expense Surge Alert</h4>
+                    <span class="text-[9px] text-gray-500 font-mono">2 Hours Ago</span>
+                  </div>
+                  <p class="text-gray-400 text-xs leading-relaxed">System z-score scan isolated an operational cost surge in the Marketing department ledger deviating from rolling standard deviation averages.</p>
+                </div>
+              </div>
+
+              <!-- Item 2 -->
+              <div class="glass-panel p-4.5 rounded-2xl border border-darkBorder/50 flex items-start space-x-3.5">
+                <span class="h-8 w-8 rounded-full bg-softBlue/10 border border-softBlue/25 text-softBlue flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="sparkles" class="h-4.5 w-4.5"></i></span>
+                <div class="space-y-1 flex-grow">
+                  <div class="flex justify-between items-baseline">
+                    <h4 class="font-bold text-gray-200 text-xs">AI recommendations compiled</h4>
+                    <span class="text-[9px] text-gray-500 font-mono">Yesterday</span>
+                  </div>
+                  <p class="text-gray-400 text-xs leading-relaxed">Gemini completed the strategic growth analysis audit for your organization, updating priority growth tactic cards.</p>
+                </div>
+              </div>
+
+              <!-- Item 3 -->
+              <div class="glass-panel p-4.5 rounded-2xl border border-darkBorder/50 flex items-start space-x-3.5">
+                <span class="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="eye" class="h-4.5 w-4.5"></i></span>
+                <div class="space-y-1 flex-grow">
+                  <div class="flex justify-between items-baseline">
+                    <h4 class="font-bold text-gray-200 text-xs">Public Stakeholder Access</h4>
+                    <span class="text-[9px] text-gray-500 font-mono">3 Days Ago</span>
+                  </div>
+                  <p class="text-gray-400 text-xs leading-relaxed">An external stakeholder accessed your shared dashboard link from Chrome client IP.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== PANEL: SETTINGS ==================== -->
+          <div id="panel-settings" class="hidden space-y-6 max-w-2xl mx-auto">
+            <div class="border-b border-darkBorder/40 pb-5">
+              <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">System Settings</h2>
+              <p class="text-sm text-gray-500 mt-1">Configure profile configurations, custom Gemini credentials, notification rules, and database parameters.</p>
+            </div>
+            
+            <div class="space-y-6">
+              <!-- API Keys Setup -->
+              <div class="glass-panel p-6 rounded-2xl border border-darkBorder/50 shadow-xl space-y-4">
+                <h3 class="font-outfit font-bold text-white text-base flex items-center space-x-2">
+                  <i data-lucide="key" class="h-5 w-5 text-softBlue"></i>
+                  <span>Gemini API Integration</span>
+                </h3>
+                
+                <div class="space-y-3">
+                  <div class="space-y-1 text-xs">
+                    <label class="text-gray-400 font-semibold">Google Gemini API Key</label>
+                    <input type="password" id="settings-gemini-key" placeholder="Enter GEMINI_API_KEY..." class="w-full px-4 py-3 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-xs text-white" />
+                    <span class="text-[10px] text-gray-500 mt-1.5 block">Stored locally. Used to trigger live Gemini reasoning models and image OCR extraction. Get a key at <a href="https://aistudio.google.com" target="_blank" class="text-softBlue underline">aistudio.google.com</a></span>
+                  </div>
+                </div>
+                
+                <button onclick="saveSettingsAPIKey()" class="px-5 py-2.5 bg-gradient-to-r from-mediumPurple to-royalBlue hover:opacity-95 text-white text-xs font-semibold rounded-xl transition-all shadow-md">
+                  Save API Key
+                </button>
+              </div>
+
+              <!-- Notifications Preferences -->
+              <div class="glass-panel p-6 rounded-2xl border border-darkBorder/50 shadow-xl space-y-4">
+                <h3 class="font-outfit font-bold text-white text-base flex items-center space-x-2">
+                  <i data-lucide="bell-ring" class="h-5 w-5 text-softBlue"></i>
+                  <span>Preference Controls</span>
+                </h3>
+                
+                <div class="space-y-3.5 text-xs text-gray-300">
+                  <div class="flex items-center space-x-3">
+                    <input type="checkbox" id="sett-opt-0" checked class="h-4.5 w-4.5 rounded border-darkBorder bg-black text-[#54E1EF] focus:ring-[#54E1EF]" />
+                    <label for="sett-opt-0">Email alert digests on weekly anomalies</label>
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    <input type="checkbox" id="sett-opt-1" checked class="h-4.5 w-4.5 rounded border-darkBorder bg-black text-[#54E1EF] focus:ring-[#54E1EF]" />
+                    <label for="sett-opt-1">Notify on public shared link stakeholders views</label>
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    <input type="checkbox" id="sett-opt-2" class="h-4.5 w-4.5 rounded border-darkBorder bg-black text-[#54E1EF] focus:ring-[#54E1EF]" />
+                    <label for="sett-opt-2">Enable pre-release experimental features</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
 
         <!-- MOBILE BOTTOM NAVIGATION -->
         <div class="fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-lg border-t border-darkBorder flex md:hidden justify-around items-center py-2.5 px-4 shadow-xl">

@@ -188,6 +188,120 @@
     .wizard-card.border-emerald-500 { border-color: #10b981; }
     .wizard-card.border-amber-500 { border-color: #f59e0b; }
 
+    /* ============ LANDING PAGE PREMIUM ANIMATIONS ============ */
+
+    /* Particle / Grid Background */
+    @keyframes gridShimmer {
+      0%   { opacity: 0.03; }
+      50%  { opacity: 0.07; }
+      100% { opacity: 0.03; }
+    }
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(141,168,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(141,168,255,0.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+      animation: gridShimmer 6s ease-in-out infinite;
+    }
+
+    /* Typewriter cursor blink */
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+    .cursor-blink { animation: blink 1s step-end infinite; }
+
+    /* Counter roll-up */
+    @keyframes countUp {
+      from { opacity:0; transform: translateY(12px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .count-animate { animation: countUp 0.8s ease-out forwards; }
+
+    /* Glowing ring pulse around hero dashboard */
+    @keyframes ringPulse {
+      0%   { box-shadow: 0 0 0   0px rgba(81,46,139,0.25), 0 0 0   0px rgba(141,168,255,0.15); }
+      60%  { box-shadow: 0 0 40px 20px rgba(81,46,139,0.10), 0 0 60px 30px rgba(141,168,255,0.06); }
+      100% { box-shadow: 0 0 0   0px rgba(81,46,139,0.0),  0 0 0   0px rgba(141,168,255,0.0); }
+    }
+    .ring-pulse { animation: ringPulse 3.5s ease-in-out infinite; }
+
+    /* Floating badge drift */
+    @keyframes badgeDrift {
+      0%   { transform: translateY(0px)  rotate(-1deg); }
+      50%  { transform: translateY(-8px) rotate(1deg); }
+      100% { transform: translateY(0px)  rotate(-1deg); }
+    }
+    .badge-drift-1 { animation: badgeDrift 4s ease-in-out infinite; }
+    .badge-drift-2 { animation: badgeDrift 5s ease-in-out infinite 1s; }
+    .badge-drift-3 { animation: badgeDrift 4.5s ease-in-out infinite 0.5s; }
+
+    /* Animated bar chart bars */
+    @keyframes barGrow {
+      from { transform: scaleY(0); transform-origin: bottom; }
+      to   { transform: scaleY(1); transform-origin: bottom; }
+    }
+    .bar-animate { animation: barGrow 1.2s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+    /* Shimmer scan line on hero card */
+    @keyframes scanLine {
+      0%   { transform: translateY(-100%); opacity:0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(600%);  opacity:0; }
+    }
+    .scan-line {
+      position: absolute; left:0; right:0; height:2px;
+      background: linear-gradient(90deg, transparent, rgba(141,168,255,0.5), transparent);
+      animation: scanLine 3.5s ease-in-out infinite;
+    }
+
+    /* Sparkle dot */
+    @keyframes sparkle {
+      0%,100% { transform: scale(0); opacity:0; }
+      50%      { transform: scale(1); opacity:1; }
+    }
+    .sparkle-dot { animation: sparkle 2.5s ease-in-out infinite; }
+
+    /* Hero section entrance */
+    @keyframes heroEntrance {
+      from { opacity:0; transform: translateY(24px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .hero-text-1 { animation: heroEntrance 0.7s ease-out 0.1s both; }
+    .hero-text-2 { animation: heroEntrance 0.7s ease-out 0.3s both; }
+    .hero-text-3 { animation: heroEntrance 0.7s ease-out 0.5s both; }
+    .hero-text-4 { animation: heroEntrance 0.7s ease-out 0.7s both; }
+    .hero-right   { animation: heroEntrance 0.9s ease-out 0.4s both; }
+
+    /* Stats counter strip */
+    @keyframes statSlide {
+      from { opacity:0; transform: translateX(-12px); }
+      to   { opacity:1; transform: translateX(0); }
+    }
+    .stat-1 { animation: statSlide 0.6s ease-out 0.8s both; }
+    .stat-2 { animation: statSlide 0.6s ease-out 1.0s both; }
+    .stat-3 { animation: statSlide 0.6s ease-out 1.2s both; }
+    .stat-4 { animation: statSlide 0.6s ease-out 1.4s both; }
+
+    /* Testimonial scroll marquee */
+    @keyframes marquee {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .marquee-track { animation: marquee 28s linear infinite; }
+    .marquee-track:hover { animation-play-state: paused; }
+
+    /* Orbiting dot around the hero badge */
+    @keyframes orbit {
+      from { transform: rotate(0deg)   translateX(20px) rotate(0deg); }
+      to   { transform: rotate(360deg) translateX(20px) rotate(-360deg); }
+    }
+    .orbit-dot { animation: orbit 3s linear infinite; }
+
+    /* Gradient border shimmer */
+    @keyframes gradBorderSpin {
+      from { background-position: 0% 50%; }
+      to   { background-position: 100% 50%; }
+    }
+
   </style>
 </head>
 <body class="overflow-x-hidden min-h-screen relative">
@@ -201,9 +315,606 @@
 
     <!-- LANDING VIEW -->
     <div id="view-landing" class="min-h-screen relative overflow-y-auto scroll-smooth flex flex-col justify-between">
-      <!-- Starry / Glowing Background Blobs -->
-      <div class="absolute top-1/3 left-1/4 w-72 h-72 bg-midnightPurple/20 rounded-full filter blur-[100px] pointer-events-none -z-10 animate-pulse"></div>
-      <div class="absolute bottom-1/3 right-1/4 w-72 h-72 bg-royalBlue/15 rounded-full filter blur-[100px] pointer-events-none -z-10 animate-pulse"></div>
+
+      <!-- ============ LAYERED ANIMATED BACKGROUND ============ -->
+      <!-- Particle grid -->
+      <div class="fixed inset-0 grid-bg pointer-events-none -z-20"></div>
+      <!-- Soft ambient blobs -->
+      <div class="fixed top-1/4 left-1/6 w-[500px] h-[500px] bg-midnightPurple/20 rounded-full filter blur-[140px] floating-blob-1 pointer-events-none -z-10"></div>
+      <div class="fixed bottom-1/4 right-1/6 w-[500px] h-[500px] bg-royalBlue/15 rounded-full filter blur-[160px] floating-blob-2 pointer-events-none -z-10"></div>
+      <div class="fixed top-3/4 left-1/2 w-96 h-96 bg-softBlue/8 rounded-full filter blur-[120px] floating-blob-1 pointer-events-none -z-10" style="animation-delay:-5s"></div>
+
+      <!-- ============ HEADER ============ -->
+      <header class="max-w-7xl mx-auto w-full px-6 py-5 flex items-center justify-between border-b border-white/5 backdrop-blur-sm sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+          <div class="relative h-9 w-9 rounded-lg bg-gradient-to-tr from-mediumPurple via-royalBlue to-softBlue flex items-center justify-center shadow-lg">
+            <i data-lucide="bar-chart-3" class="h-5 w-5 text-white"></i>
+            <span class="orbit-dot absolute h-2 w-2 rounded-full bg-softBlue shadow-[0_0_6px_#8DA8FF]"></span>
+          </div>
+          <div>
+            <span class="font-outfit font-extrabold text-lg text-white block tracking-wide">ORGANALYTICS</span>
+            <span class="text-[9px] text-softBlue font-mono font-bold tracking-widest uppercase block">AI Audit Engine</span>
+          </div>
+        </div>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-semibold text-gray-400">
+          <a href="#" onclick="document.getElementById('landing-features').scrollIntoView({behavior:'smooth'});return false;" class="hover:text-white transition-colors">Features</a>
+          <a href="#" onclick="document.getElementById('landing-pipeline').scrollIntoView({behavior:'smooth'});return false;" class="hover:text-white transition-colors">How It Works</a>
+          <a href="#" onclick="document.getElementById('landing-stats').scrollIntoView({behavior:'smooth'});return false;" class="hover:text-white transition-colors">Stats</a>
+        </nav>
+        <button onclick="switchView('auth')" class="px-5 py-2 rounded-xl bg-gradient-to-r from-mediumPurple/80 to-royalBlue/80 border border-softBlue/20 text-white text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-softBlue/20 hover:scale-105">
+          Sign In &rarr;
+        </button>
+      </header>
+
+      <!-- ============ SECTION 1: HERO ============ -->
+      <section id="landing-hero" class="max-w-7xl mx-auto w-full px-6 pt-16 pb-10 flex flex-col lg:flex-row items-center justify-between gap-16 min-h-[85vh]">
+
+        <!-- LEFT: Text + CTA -->
+        <div class="flex-1 text-center lg:text-left space-y-7 max-w-2xl">
+
+          <!-- Pill badge with orbit dot -->
+          <div class="hero-text-1 inline-flex items-center space-x-2 bg-darkCard/90 border border-softBlue/20 px-4 py-2 rounded-full text-xs font-bold text-softBlue shadow-lg shadow-mediumPurple/10">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-softBlue opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-softBlue"></span>
+            </span>
+            <span>Powered by Google Gemini AI &bull; Next-Gen Corporate Diagnostics</span>
+          </div>
+
+          <!-- Headline with gradient word -->
+          <div class="hero-text-2">
+            <h1 class="text-5xl lg:text-7xl font-outfit font-extrabold text-white leading-[1.08] tracking-tight">
+              Turn Raw Data into
+              <span class="block bg-gradient-to-r from-softBlue via-royalBlue to-mediumPurple bg-clip-text text-transparent">Strategic Growth</span>
+            </h1>
+          </div>
+
+          <p class="hero-text-3 text-gray-400 text-base lg:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            Upload your financial ledger, describe your goals, and our Gemini-powered engine instantly generates forecasts, isolates anomalies, and drafts boardroom-ready strategic audits &mdash; in seconds.
+          </p>
+
+          <!-- CTA Buttons -->
+          <div class="hero-text-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <button onclick="switchView('auth')" class="group w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-mediumPurple via-royalBlue to-softBlue text-white font-bold text-sm flex items-center justify-center space-x-3 shadow-xl shadow-mediumPurple/30 hover:shadow-softBlue/30 hover:scale-105 transition-all duration-300 ring-pulse">
+              <i data-lucide="zap" class="h-4 w-4 group-hover:rotate-12 transition-transform"></i>
+              <span>Get Started Free</span>
+              <i data-lucide="arrow-right" class="h-4 w-4 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+            <button onclick="document.getElementById('landing-features').scrollIntoView({behavior: 'smooth'})" class="w-full sm:w-auto px-8 py-4 rounded-2xl border border-white/10 hover:border-softBlue/40 hover:bg-darkCard/60 text-gray-300 font-semibold text-sm flex items-center justify-center space-x-2 transition-all duration-300">
+              <i data-lucide="play-circle" class="h-4 w-4 text-softBlue"></i>
+              <span>See How It Works</span>
+            </button>
+          </div>
+
+          <!-- Social proof mini avatars -->
+          <div class="hero-text-4 flex items-center space-x-4 justify-center lg:justify-start">
+            <div class="flex -space-x-2">
+              <div class="h-7 w-7 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 border-2 border-black flex items-center justify-center text-[9px] font-bold text-white">S</div>
+              <div class="h-7 w-7 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 border-2 border-black flex items-center justify-center text-[9px] font-bold text-white">R</div>
+              <div class="h-7 w-7 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 border-2 border-black flex items-center justify-center text-[9px] font-bold text-white">A</div>
+              <div class="h-7 w-7 rounded-full bg-gradient-to-tr from-softBlue to-royalBlue border-2 border-black flex items-center justify-center text-[9px] font-bold text-white">K</div>
+              <div class="h-7 w-7 rounded-full bg-darkBorder border-2 border-black flex items-center justify-center text-[9px] font-bold text-gray-400">+</div>
+            </div>
+            <p class="text-xs text-gray-500"><span class="text-white font-semibold">2,400+</span> orgs already using Organalytics</p>
+          </div>
+        </div>
+
+        <!-- RIGHT: Animated Dashboard Mock -->
+        <div class="hero-right flex-1 flex justify-center items-center w-full max-w-lg mx-auto relative">
+
+          <!-- Floating KPI badges -->
+          <div class="badge-drift-1 absolute -top-6 -left-4 z-20 flex items-center gap-2 bg-darkCard/95 border border-emerald-500/30 px-3 py-2 rounded-2xl shadow-xl shadow-emerald-500/10 backdrop-blur-md">
+            <div class="h-7 w-7 rounded-lg bg-emerald-500/15 flex items-center justify-center"><i data-lucide="trending-up" class="h-3.5 w-3.5 text-emerald-400"></i></div>
+            <div><p class="text-[10px] font-extrabold text-emerald-400">+14.2% YoY</p><p class="text-[8px] text-gray-500">Revenue Growth</p></div>
+          </div>
+
+          <div class="badge-drift-2 absolute -bottom-4 -right-2 z-20 flex items-center gap-2 bg-darkCard/95 border border-softBlue/30 px-3 py-2 rounded-2xl shadow-xl shadow-softBlue/10 backdrop-blur-md">
+            <div class="h-7 w-7 rounded-lg bg-softBlue/15 flex items-center justify-center"><i data-lucide="shield-check" class="h-3.5 w-3.5 text-softBlue"></i></div>
+            <div><p class="text-[10px] font-extrabold text-softBlue">Score 82/100</p><p class="text-[8px] text-gray-500">Audit Health</p></div>
+          </div>
+
+          <div class="badge-drift-3 absolute top-1/2 -right-8 z-20 flex items-center gap-2 bg-darkCard/95 border border-amber-500/30 px-3 py-2 rounded-2xl shadow-xl shadow-amber-500/10 backdrop-blur-md">
+            <div class="h-7 w-7 rounded-lg bg-amber-500/15 flex items-center justify-center"><i data-lucide="zap" class="h-3.5 w-3.5 text-amber-400"></i></div>
+            <div><p class="text-[10px] font-extrabold text-amber-400">6 Anomalies</p><p class="text-[8px] text-gray-500">Auto-flagged</p></div>
+          </div>
+
+          <!-- Main dashboard card -->
+          <div class="relative w-full ring-pulse bg-[rgba(10,5,20,0.95)] rounded-3xl border border-white/8 shadow-2xl overflow-hidden" style="box-shadow:0 0 80px rgba(81,46,139,0.2), 0 40px 80px rgba(0,0,0,0.6);">
+
+            <!-- Top gradient bar -->
+            <div class="h-0.5 w-full bg-gradient-to-r from-mediumPurple via-softBlue to-royalBlue"></div>
+
+            <!-- Scan line animation -->
+            <div class="scan-line"></div>
+
+            <!-- Window chrome -->
+            <div class="px-5 py-4 flex items-center justify-between border-b border-white/5">
+              <div class="flex space-x-1.5">
+                <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+                <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+                <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[10px] text-softBlue font-mono font-bold tracking-widest">LIVE AUDIT &bull; Q2 2025</span>
+              </div>
+              <div class="flex items-center gap-1 text-[9px] font-mono text-gray-600">
+                <i data-lucide="cpu" class="h-3 w-3"></i> gemini-1.5
+              </div>
+            </div>
+
+            <div class="p-5 space-y-4">
+
+              <!-- KPI row -->
+              <div class="grid grid-cols-3 gap-3">
+                <div class="bg-black/60 border border-white/5 rounded-xl p-3">
+                  <p class="text-[9px] text-gray-500 uppercase font-bold tracking-wider">Revenue</p>
+                  <p class="text-base font-extrabold font-outfit text-white mt-0.5">$4.85M</p>
+                  <p class="text-[9px] text-emerald-400 font-semibold mt-0.5 flex items-center gap-0.5"><i data-lucide="trending-up" class="h-2.5 w-2.5"></i> +14.2%</p>
+                </div>
+                <div class="bg-black/60 border border-white/5 rounded-xl p-3">
+                  <p class="text-[9px] text-gray-500 uppercase font-bold tracking-wider">Burn Rate</p>
+                  <p class="text-base font-extrabold font-outfit text-softBlue mt-0.5">$1.2M</p>
+                  <p class="text-[9px] text-amber-400 font-semibold mt-0.5 flex items-center gap-0.5"><i data-lucide="minus" class="h-2.5 w-2.5"></i> -3.1%</p>
+                </div>
+                <div class="bg-black/60 border border-white/5 rounded-xl p-3">
+                  <p class="text-[9px] text-gray-500 uppercase font-bold tracking-wider">Net Score</p>
+                  <p class="text-base font-extrabold font-outfit text-emerald-400 mt-0.5">82/100</p>
+                  <p class="text-[9px] text-gray-500 font-semibold mt-0.5">High eff.</p>
+                </div>
+              </div>
+
+              <!-- Animated bar chart -->
+              <div class="bg-black/60 border border-white/5 rounded-xl p-4">
+                <div class="flex justify-between items-center mb-3">
+                  <span class="text-[10px] text-gray-400 font-bold">Dept. Performance vs Target</span>
+                  <span class="text-[9px] text-softBlue font-mono">Q1–Q2 2025</span>
+                </div>
+                <div class="flex items-end justify-between gap-2 h-20">
+                  <!-- Bar group: Sales -->
+                  <div class="flex flex-col items-center gap-1 flex-1">
+                    <div class="w-full flex items-end gap-0.5 h-16">
+                      <div class="flex-1 rounded-t-sm bar-animate bg-gradient-to-t from-mediumPurple to-royalBlue" style="height:72%;animation-delay:0.1s"></div>
+                      <div class="flex-1 rounded-t-sm bar-animate bg-softBlue/20 border border-softBlue/30" style="height:85%;animation-delay:0.15s"></div>
+                    </div>
+                    <span class="text-[8px] text-gray-500">Sales</span>
+                  </div>
+                  <!-- Bar group: Mktg -->
+                  <div class="flex flex-col items-center gap-1 flex-1">
+                    <div class="w-full flex items-end gap-0.5 h-16">
+                      <div class="flex-1 rounded-t-sm bar-animate bg-gradient-to-t from-mediumPurple to-royalBlue" style="height:55%;animation-delay:0.2s"></div>
+                      <div class="flex-1 rounded-t-sm bar-animate bg-rose-500/60" style="height:90%;animation-delay:0.25s"></div>
+                    </div>
+                    <span class="text-[8px] text-rose-400 font-bold">Mktg ⚠</span>
+                  </div>
+                  <!-- Bar group: Ops -->
+                  <div class="flex flex-col items-center gap-1 flex-1">
+                    <div class="w-full flex items-end gap-0.5 h-16">
+                      <div class="flex-1 rounded-t-sm bar-animate bg-gradient-to-t from-mediumPurple to-royalBlue" style="height:80%;animation-delay:0.3s"></div>
+                      <div class="flex-1 rounded-t-sm bar-animate bg-softBlue/20 border border-softBlue/30" style="height:75%;animation-delay:0.35s"></div>
+                    </div>
+                    <span class="text-[8px] text-gray-500">Ops</span>
+                  </div>
+                  <!-- Bar group: R&D -->
+                  <div class="flex flex-col items-center gap-1 flex-1">
+                    <div class="w-full flex items-end gap-0.5 h-16">
+                      <div class="flex-1 rounded-t-sm bar-animate bg-gradient-to-t from-mediumPurple to-royalBlue" style="height:62%;animation-delay:0.4s"></div>
+                      <div class="flex-1 rounded-t-sm bar-animate bg-softBlue/20 border border-softBlue/30" style="height:60%;animation-delay:0.45s"></div>
+                    </div>
+                    <span class="text-[8px] text-gray-500">R&amp;D</span>
+                  </div>
+                  <!-- Bar group: HR -->
+                  <div class="flex flex-col items-center gap-1 flex-1">
+                    <div class="w-full flex items-end gap-0.5 h-16">
+                      <div class="flex-1 rounded-t-sm bar-animate bg-gradient-to-t from-mediumPurple to-royalBlue" style="height:40%;animation-delay:0.5s"></div>
+                      <div class="flex-1 rounded-t-sm bar-animate bg-softBlue/20 border border-softBlue/30" style="height:45%;animation-delay:0.55s"></div>
+                    </div>
+                    <span class="text-[8px] text-gray-500">HR</span>
+                  </div>
+                </div>
+                <div class="flex gap-3 mt-2">
+                  <span class="flex items-center gap-1 text-[8px] text-gray-500"><span class="w-2 h-2 rounded-sm bg-gradient-to-t from-mediumPurple to-royalBlue inline-block"></span>Actual</span>
+                  <span class="flex items-center gap-1 text-[8px] text-gray-500"><span class="w-2 h-2 rounded-sm bg-softBlue/30 border border-softBlue/40 inline-block"></span>Target</span>
+                </div>
+              </div>
+
+              <!-- AI insight ticker -->
+              <div class="bg-black/60 border border-mediumPurple/30 rounded-xl p-3 flex items-start gap-2.5">
+                <div class="h-5 w-5 rounded-md bg-mediumPurple/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <i data-lucide="sparkles" class="h-3 w-3 text-softBlue"></i>
+                </div>
+                <div>
+                  <p class="text-[9px] text-softBlue font-bold uppercase tracking-wider mb-0.5">Gemini AI Insight</p>
+                  <p class="text-[10px] text-gray-300 leading-relaxed animate-pulse">Marketing overspend flagged at +2.8σ. Recommend reallocating 18% budget to Sales channel Q3.</p>
+                </div>
+              </div>
+
+            </div><!-- /card body -->
+          </div><!-- /main card -->
+        </div><!-- /right -->
+      </section>
+
+      <!-- ============ STATS COUNTER BAR ============ -->
+      <section id="landing-stats" class="border-y border-white/5 bg-darkCard/30 backdrop-blur-sm py-8">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div class="stat-1 space-y-1">
+              <p class="text-3xl font-extrabold font-outfit text-white">2,400<span class="text-softBlue">+</span></p>
+              <p class="text-xs text-gray-500 font-semibold">Organizations Analyzed</p>
+            </div>
+            <div class="stat-2 space-y-1">
+              <p class="text-3xl font-extrabold font-outfit text-white">98<span class="text-emerald-400">%</span></p>
+              <p class="text-xs text-gray-500 font-semibold">Forecast Accuracy</p>
+            </div>
+            <div class="stat-3 space-y-1">
+              <p class="text-3xl font-extrabold font-outfit text-white">14.2<span class="text-amber-400">×</span></p>
+              <p class="text-xs text-gray-500 font-semibold">Average ROI Lift</p>
+            </div>
+            <div class="stat-4 space-y-1">
+              <p class="text-3xl font-extrabold font-outfit text-white">&lt;30<span class="text-softBlue">s</span></p>
+              <p class="text-xs text-gray-500 font-semibold">Audit Generation Time</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SECTION 2: FEATURE CARDS ============ -->
+      <section id="landing-features" class="max-w-7xl mx-auto w-full px-6 py-24">
+        <div class="text-center max-w-2xl mx-auto space-y-4 mb-16 scroll-animate">
+          <span class="inline-flex items-center gap-2 text-xs font-bold text-softBlue uppercase tracking-widest font-mono bg-softBlue/5 border border-softBlue/15 px-4 py-1.5 rounded-full">
+            <i data-lucide="layers" class="h-3 w-3"></i> Platform Capabilities
+          </span>
+          <h2 class="text-4xl lg:text-5xl font-outfit font-extrabold text-white leading-tight">Full-Stack Business Intelligence</h2>
+          <p class="text-gray-400 text-sm leading-relaxed">Organalytics merges advanced statistics, linear regression, rolling anomaly detection, and generative AI strategy execution into one seamless audit workflow.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Feature 1: AI Engine -->
+          <div class="group glass-panel p-8 rounded-3xl border border-darkBorder/50 shadow-xl glass-panel-hover scroll-animate flex flex-col justify-between h-[380px] relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-mediumPurple/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div>
+              <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-mediumPurple/30 to-royalBlue/20 border border-mediumPurple/30 flex items-center justify-center text-softBlue mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i data-lucide="cpu" class="h-6 w-6"></i>
+              </div>
+              <span class="text-[9px] font-bold text-mediumPurple uppercase tracking-widest">Gemini 1.5 Flash</span>
+              <h3 class="font-outfit font-bold text-white text-xl mt-1">Strategic AI Engine</h3>
+              <p class="text-gray-400 text-xs mt-3 leading-relaxed">Interprets business pain points, configures KPI dashboards, compiles SWOT summaries, and writes prioritized action plans in real-time.</p>
+            </div>
+            <div class="p-3 bg-black/60 border border-darkBorder rounded-xl font-mono text-[9px] space-y-1.5 overflow-hidden">
+              <div class="flex items-center space-x-1.5 text-softBlue">
+                <span class="w-1.5 h-1.5 rounded-full bg-softBlue animate-ping"></span>
+                <span>gemini-pro &gt; strategy_pipeline</span>
+              </div>
+              <div class="text-gray-400 border-l-2 border-mediumPurple pl-2 py-0.5 leading-normal animate-pulse">
+                Generating SWOT... Revenue opportunity isolated at CRM +14.2% YoY.
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 2: ARIMA -->
+          <div class="group glass-panel p-8 rounded-3xl border border-darkBorder/50 shadow-xl glass-panel-hover scroll-animate flex flex-col justify-between h-[380px] relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-royalBlue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div>
+              <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-royalBlue/30 to-softBlue/20 border border-royalBlue/30 flex items-center justify-center text-softBlue mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i data-lucide="line-chart" class="h-6 w-6"></i>
+              </div>
+              <span class="text-[9px] font-bold text-royalBlue uppercase tracking-widest">Predictive Models</span>
+              <h3 class="font-outfit font-bold text-white text-xl mt-1">ARIMA Forecasting</h3>
+              <p class="text-gray-400 text-xs mt-3 leading-relaxed">Aggregates historical transactions, isolates seasonal trends, and projects future revenue cycles with standard deviation confidence intervals.</p>
+            </div>
+            <div class="p-3 bg-black/60 border border-darkBorder rounded-xl h-24 flex flex-col justify-end">
+              <div class="text-[8px] text-gray-500 font-mono mb-1">6-MONTH ARIMA PROJECTION</div>
+              <svg class="w-full h-14 overflow-visible" viewBox="0 0 200 40" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#3F7FDE"/>
+                    <stop offset="100%" stop-color="#8DA8FF"/>
+                  </linearGradient>
+                </defs>
+                <path d="M 0 32 Q 40 22 80 26 T 160 10 T 200 4" fill="none" stroke="url(#lineGrad)" stroke-width="2"/>
+                <path d="M 80 26 T 160 10 T 200 4" fill="none" stroke="#8DA8FF" stroke-width="1.5" stroke-dasharray="3,3"/>
+                <path d="M 80 26 L 120 18 L 160 5 L 200 0 L 200 10 L 160 18 L 120 28 Z" fill="rgba(141,168,255,0.08)"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Feature 3: Z-Score -->
+          <div class="group glass-panel p-8 rounded-3xl border border-darkBorder/50 shadow-xl glass-panel-hover scroll-animate flex flex-col justify-between h-[380px] relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-rose-500/4 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div>
+              <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-rose-500/20 to-amber-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i data-lucide="shield-alert" class="h-6 w-6"></i>
+              </div>
+              <span class="text-[9px] font-bold text-rose-400 uppercase tracking-widest">Anomaly Detection</span>
+              <h3 class="font-outfit font-bold text-white text-xl mt-1">Z-Score Outlier Scan</h3>
+              <p class="text-gray-400 text-xs mt-3 leading-relaxed">Statistical anomaly sweeps across departmental ledgers to isolate abnormal cost overrides and revenue drops before they become critical.</p>
+            </div>
+            <div class="p-3 bg-black/60 border border-darkBorder rounded-xl h-20 flex items-center justify-around relative overflow-hidden">
+              <div class="absolute top-2 left-2 text-[8px] text-gray-500 font-mono font-bold">ANOMALY RADAR</div>
+              <div class="flex flex-col items-center justify-end h-10 w-5 mt-2">
+                <div class="bg-royalBlue/50 w-full rounded-t-sm" style="height:40%"></div>
+                <span class="text-[7px] text-gray-500 mt-1">R&amp;D</span>
+              </div>
+              <div class="flex flex-col items-center justify-end h-10 w-5 mt-2 relative">
+                <span class="absolute -top-4 text-[7px] text-rose-400 font-bold animate-bounce">Z&gt;2.8</span>
+                <div class="bg-rose-500 w-full rounded-t-sm animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.6)]" style="height:90%"></div>
+                <span class="text-[7px] text-rose-400 font-bold mt-1">Mkt</span>
+              </div>
+              <div class="flex flex-col items-center justify-end h-10 w-5 mt-2">
+                <div class="bg-royalBlue/50 w-full rounded-t-sm" style="height:25%"></div>
+                <span class="text-[7px] text-gray-500 mt-1">HR</span>
+              </div>
+              <div class="flex flex-col items-center justify-end h-10 w-5 mt-2">
+                <div class="bg-royalBlue/50 w-full rounded-t-sm" style="height:60%"></div>
+                <span class="text-[7px] text-gray-500 mt-1">Ops</span>
+              </div>
+              <div class="flex flex-col items-center justify-end h-10 w-5 mt-2">
+                <div class="bg-amber-500/60 w-full rounded-t-sm animate-pulse" style="height:45%"></div>
+                <span class="text-[7px] text-amber-400 mt-1">Fin</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Second row: 4 smaller feature tiles -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div class="scroll-animate glass-panel p-5 rounded-2xl border border-darkBorder/50 flex items-start gap-3 hover:border-softBlue/25 transition-colors">
+            <div class="h-8 w-8 rounded-xl bg-softBlue/10 flex items-center justify-center flex-shrink-0"><i data-lucide="camera" class="h-4 w-4 text-softBlue"></i></div>
+            <div><p class="text-xs font-bold text-white">Vision Upload</p><p class="text-[10px] text-gray-500 mt-0.5">OCR-extract data from screenshots</p></div>
+          </div>
+          <div class="scroll-animate glass-panel p-5 rounded-2xl border border-darkBorder/50 flex items-start gap-3 hover:border-emerald-500/25 transition-colors">
+            <div class="h-8 w-8 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0"><i data-lucide="sliders" class="h-4 w-4 text-emerald-400"></i></div>
+            <div><p class="text-xs font-bold text-white">Scenario Simulator</p><p class="text-[10px] text-gray-500 mt-0.5">Model what-if financial outcomes</p></div>
+          </div>
+          <div class="scroll-animate glass-panel p-5 rounded-2xl border border-darkBorder/50 flex items-start gap-3 hover:border-amber-500/25 transition-colors">
+            <div class="h-8 w-8 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0"><i data-lucide="bar-chart-2" class="h-4 w-4 text-amber-400"></i></div>
+            <div><p class="text-xs font-bold text-white">Benchmarks</p><p class="text-[10px] text-gray-500 mt-0.5">Compare vs industry averages</p></div>
+          </div>
+          <div class="scroll-animate glass-panel p-5 rounded-2xl border border-darkBorder/50 flex items-start gap-3 hover:border-mediumPurple/40 transition-colors">
+            <div class="h-8 w-8 rounded-xl bg-mediumPurple/15 flex items-center justify-center flex-shrink-0"><i data-lucide="file-text" class="h-4 w-4 text-softBlue"></i></div>
+            <div><p class="text-xs font-bold text-white">PDF Export</p><p class="text-[10px] text-gray-500 mt-0.5">Boardroom-ready audit reports</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SECTION 3: HOW IT WORKS PIPELINE ============ -->
+      <section id="landing-pipeline" class="border-t border-white/5 py-24">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="flex flex-col md:flex-row justify-between items-center pb-12 gap-4 scroll-animate">
+            <div>
+              <span class="text-[9px] font-bold text-softBlue uppercase tracking-widest font-mono">Workflow</span>
+              <h2 class="text-3xl lg:text-4xl font-extrabold font-outfit text-white tracking-tight mt-1">How the Analytics Engine Works</h2>
+              <p class="text-sm text-gray-500 mt-2 max-w-md">A 6-step intelligent pipeline that transforms raw data into strategic competitive advantage.</p>
+            </div>
+            <span class="text-xs font-mono font-bold text-softBlue bg-[#250F4F]/40 border border-darkBorder px-4 py-2 rounded-full">Gemini 1.5 Engine</span>
+          </div>
+
+          <div class="glass-panel p-8 rounded-3xl border border-darkBorder/50 shadow-xl scroll-animate">
+            <div class="relative hidden lg:block overflow-visible py-10 my-4">
+              <svg viewBox="0 0 1000 4" class="absolute top-1/2 left-0 w-full h-1 -translate-y-1/2 -z-10 overflow-visible" fill="none">
+                <path d="M 40 2 L 960 2" stroke="#1F0F3E" stroke-width="4" stroke-dasharray="8,12" />
+                <path class="animate-dash" d="M 40 2 L 960 2" stroke="#8DA8FF" stroke-width="3" />
+                <circle r="5" fill="#54E1EF" style="filter:drop-shadow(0 0 6px #54E1EF)">
+                  <animateMotion dur="4s" repeatCount="indefinite" path="M 40 2 L 960 2" />
+                </circle>
+                <circle r="4" fill="#8DA8FF" style="filter:drop-shadow(0 0 5px #8DA8FF)">
+                  <animateMotion dur="4s" begin="2s" repeatCount="indefinite" path="M 40 2 L 960 2" />
+                </circle>
+              </svg>
+
+              <div class="flex justify-between px-2">
+                <div class="flex flex-col items-center space-y-3 w-36 group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                  <div class="h-14 w-14 rounded-2xl border-2 border-softBlue bg-black flex items-center justify-center text-softBlue group-hover:shadow-[0_0_20px_rgba(84,225,239,0.4)] group-hover:border-[#54E1EF] transition-all">
+                    <i data-lucide="target" class="h-6 w-6"></i>
+                  </div>
+                  <span class="text-xs font-bold text-white text-center">1. Define Goals</span>
+                  <span class="text-[9px] text-gray-500 text-center leading-relaxed">AI chatbot records organization profile</span>
+                </div>
+                <div class="flex flex-col items-center space-y-3 w-36 group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                  <div class="h-14 w-14 rounded-2xl border-2 border-mediumPurple bg-black flex items-center justify-center text-softBlue group-hover:shadow-[0_0_20px_rgba(141,168,255,0.4)] transition-all">
+                    <i data-lucide="upload-cloud" class="h-6 w-6"></i>
+                  </div>
+                  <span class="text-xs font-bold text-white text-center">2. Ingest Ledger</span>
+                  <span class="text-[9px] text-gray-500 text-center leading-relaxed">Drop CSV or load demo data</span>
+                </div>
+                <div class="flex flex-col items-center space-y-3 w-36 group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                  <div class="h-14 w-14 rounded-2xl border-2 border-rose-500/60 bg-black flex items-center justify-center text-rose-400 group-hover:shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all">
+                    <i data-lucide="activity" class="h-6 w-6"></i>
+                  </div>
+                  <span class="text-xs font-bold text-white text-center">3. Anomaly Scan</span>
+                  <span class="text-[9px] text-gray-500 text-center leading-relaxed">Z-score deviation sweeps</span>
+                </div>
+                <div class="flex flex-col items-center space-y-3 w-36 group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                  <div class="h-14 w-14 rounded-2xl border-2 border-royalBlue bg-black flex items-center justify-center text-softBlue group-hover:shadow-[0_0_20px_rgba(63,127,222,0.4)] transition-all">
+                    <i data-lucide="trending-up" class="h-6 w-6"></i>
+                  </div>
+                  <span class="text-xs font-bold text-white text-center">4. Forecast Models</span>
+                  <span class="text-[9px] text-gray-500 text-center leading-relaxed">6-month ARIMA projections</span>
+                </div>
+                <div class="flex flex-col items-center space-y-3 w-36 group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                  <div class="h-14 w-14 rounded-2xl border-2 border-amber-500/60 bg-black flex items-center justify-center text-amber-400 group-hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all">
+                    <i data-lucide="sparkles" class="h-6 w-6"></i>
+                  </div>
+                  <span class="text-xs font-bold text-white text-center">5. AI Strategy</span>
+                  <span class="text-[9px] text-gray-500 text-center leading-relaxed">Gemini audits &amp; structures SWOT</span>
+                </div>
+                <div class="flex flex-col items-center space-y-3 w-36 group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                  <div class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-mediumPurple to-softBlue flex items-center justify-center text-white group-hover:shadow-[0_0_25px_rgba(141,168,255,0.5)] transition-all">
+                    <i data-lucide="sliders" class="h-6 w-6"></i>
+                  </div>
+                  <span class="text-xs font-bold text-white text-center">6. Interactive View</span>
+                  <span class="text-[9px] text-gray-500 text-center leading-relaxed">Adjust variables &amp; export PDF</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile vertical steps -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-4">
+              <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                <div class="h-10 w-10 rounded-xl bg-softBlue/10 text-softBlue flex items-center justify-center font-bold font-outfit">1</div>
+                <div><h4 class="font-bold text-white text-xs">Define Goals</h4><p class="text-[10px] text-gray-500">AI chatbot records org profile</p></div>
+              </div>
+              <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                <div class="h-10 w-10 rounded-xl bg-mediumPurple/15 text-softBlue flex items-center justify-center font-bold font-outfit">2</div>
+                <div><h4 class="font-bold text-white text-xs">Ingest Ledger</h4><p class="text-[10px] text-gray-500">Drop CSV or load demo data</p></div>
+              </div>
+              <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                <div class="h-10 w-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold font-outfit">3</div>
+                <div><h4 class="font-bold text-white text-xs">Anomaly Scan</h4><p class="text-[10px] text-gray-500">Z-score deviation sweeps</p></div>
+              </div>
+              <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                <div class="h-10 w-10 rounded-xl bg-royalBlue/10 text-softBlue flex items-center justify-center font-bold font-outfit">4</div>
+                <div><h4 class="font-bold text-white text-xs">Forecast Models</h4><p class="text-[10px] text-gray-500">6-month ARIMA projections</p></div>
+              </div>
+              <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                <div class="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold font-outfit">5</div>
+                <div><h4 class="font-bold text-white text-xs">AI Strategy</h4><p class="text-[10px] text-gray-500">Gemini audits &amp; SWOT</p></div>
+              </div>
+              <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-mediumPurple to-softBlue text-white flex items-center justify-center font-bold font-outfit">6</div>
+                <div><h4 class="font-bold text-white text-xs">Interactive View</h4><p class="text-[10px] text-gray-500">Adjust vars &amp; export PDF</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TESTIMONIAL MARQUEE ============ -->
+      <section class="border-t border-white/5 py-16 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 mb-10 text-center scroll-animate">
+          <p class="text-xs font-bold text-softBlue uppercase tracking-widest font-mono mb-3">What Leaders Are Saying</p>
+          <h2 class="text-3xl font-outfit font-extrabold text-white">Trusted by Business Leaders</h2>
+        </div>
+        <div class="relative overflow-hidden">
+          <!-- Fade edges -->
+          <div class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-black to-transparent z-10"></div>
+          <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-black to-transparent z-10"></div>
+          <div class="marquee-track flex gap-5" style="width:max-content">
+            <!-- Testimonial cards (duplicated for seamless loop) -->
+            <div class="glass-panel border border-darkBorder/60 rounded-2xl p-5 w-72 flex-shrink-0">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 flex items-center justify-center text-white text-xs font-bold">S</div>
+                <div><p class="text-xs font-bold text-white">Siddharth R.</p><p class="text-[10px] text-gray-500">CFO, FinTech Startup</p></div>
+                <div class="ml-auto text-amber-400 text-xs">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed">&ldquo;Organalytics found a ₹12L marketing overspend in under 30 seconds. Our finance team would have taken a week.&rdquo;</p>
+            </div>
+            <div class="glass-panel border border-darkBorder/60 rounded-2xl p-5 w-72 flex-shrink-0">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white text-xs font-bold">R</div>
+                <div><p class="text-xs font-bold text-white">Riya M.</p><p class="text-[10px] text-gray-500">COO, D2C Brand</p></div>
+                <div class="ml-auto text-amber-400 text-xs">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed">&ldquo;The scenario simulator alone is worth the subscription. We modeled 6 growth paths before our board meeting.&rdquo;</p>
+            </div>
+            <div class="glass-panel border border-darkBorder/60 rounded-2xl p-5 w-72 flex-shrink-0">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-white text-xs font-bold">A</div>
+                <div><p class="text-xs font-bold text-white">Arjun K.</p><p class="text-[10px] text-gray-500">Strategy Head, SaaS</p></div>
+                <div class="ml-auto text-amber-400 text-xs">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed">&ldquo;The AI-generated SWOT report was indistinguishable from what our consultants produce at 10× the price.&rdquo;</p>
+            </div>
+            <div class="glass-panel border border-darkBorder/60 rounded-2xl p-5 w-72 flex-shrink-0">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-softBlue to-royalBlue flex items-center justify-center text-white text-xs font-bold">K</div>
+                <div><p class="text-xs font-bold text-white">Kavitha N.</p><p class="text-[10px] text-gray-500">Founder, EdTech</p></div>
+                <div class="ml-auto text-amber-400 text-xs">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed">&ldquo;Vision Upload is magic. I snap a screenshot of our analytics and it extracts structured data automatically.&rdquo;</p>
+            </div>
+            <div class="glass-panel border border-darkBorder/60 rounded-2xl p-5 w-72 flex-shrink-0">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-violet-500 to-purple-400 flex items-center justify-center text-white text-xs font-bold">P</div>
+                <div><p class="text-xs font-bold text-white">Priya S.</p><p class="text-[10px] text-gray-500">VP Finance, Logistics</p></div>
+                <div class="ml-auto text-amber-400 text-xs">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed">&ldquo;The benchmarking feature showed us we were 22% above industry burn rate. We acted in the same quarter.&rdquo;</p>
+            </div>
+            <!-- Duplicated for seamless loop -->
+            <div class="glass-panel border border-darkBorder/60 rounded-2xl p-5 w-72 flex-shrink-0">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 flex items-center justify-center text-white text-xs font-bold">S</div>
+                <div><p class="text-xs font-bold text-white">Siddharth R.</p><p class="text-[10px] text-gray-500">CFO, FinTech Startup</p></div>
+                <div class="ml-auto text-amber-400 text-xs">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed">&ldquo;Organalytics found a ₹12L marketing overspend in under 30 seconds. Our finance team would have taken a week.&rdquo;</p>
+            </div>
+            <div class="glass-panel border border-darkBorder/60 rounded-2xl p-5 w-72 flex-shrink-0">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white text-xs font-bold">R</div>
+                <div><p class="text-xs font-bold text-white">Riya M.</p><p class="text-[10px] text-gray-500">COO, D2C Brand</p></div>
+                <div class="ml-auto text-amber-400 text-xs">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed">&ldquo;The scenario simulator alone is worth the subscription. We modeled 6 growth paths before our board meeting.&rdquo;</p>
+            </div>
+            <div class="glass-panel border border-darkBorder/60 rounded-2xl p-5 w-72 flex-shrink-0">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-white text-xs font-bold">A</div>
+                <div><p class="text-xs font-bold text-white">Arjun K.</p><p class="text-[10px] text-gray-500">Strategy Head, SaaS</p></div>
+                <div class="ml-auto text-amber-400 text-xs">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed">&ldquo;The AI-generated SWOT report was indistinguishable from what our consultants produce at 10× the price.&rdquo;</p>
+            </div>
+            <div class="glass-panel border border-darkBorder/60 rounded-2xl p-5 w-72 flex-shrink-0">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-softBlue to-royalBlue flex items-center justify-center text-white text-xs font-bold">K</div>
+                <div><p class="text-xs font-bold text-white">Kavitha N.</p><p class="text-[10px] text-gray-500">Founder, EdTech</p></div>
+                <div class="ml-auto text-amber-400 text-xs">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed">&ldquo;Vision Upload is magic. I snap a screenshot of our analytics and it extracts structured data automatically.&rdquo;</p>
+            </div>
+            <div class="glass-panel border border-darkBorder/60 rounded-2xl p-5 w-72 flex-shrink-0">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-violet-500 to-purple-400 flex items-center justify-center text-white text-xs font-bold">P</div>
+                <div><p class="text-xs font-bold text-white">Priya S.</p><p class="text-[10px] text-gray-500">VP Finance, Logistics</p></div>
+                <div class="ml-auto text-amber-400 text-xs">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed">&ldquo;The benchmarking feature showed us we were 22% above industry burn rate. We acted in the same quarter.&rdquo;</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CTA BANNER ============ -->
+      <section class="border-t border-white/5 py-20">
+        <div class="max-w-3xl mx-auto px-6 text-center space-y-6 scroll-animate">
+          <div class="inline-flex items-center gap-2 bg-gradient-to-r from-mediumPurple/20 to-royalBlue/20 border border-softBlue/20 px-4 py-2 rounded-full text-xs font-bold text-softBlue">
+            <i data-lucide="rocket" class="h-3.5 w-3.5"></i> Start Free — No Credit Card Needed
+          </div>
+          <h2 class="text-4xl lg:text-5xl font-outfit font-extrabold text-white leading-tight">Ready to Unlock Your <span class="bg-gradient-to-r from-softBlue to-mediumPurple bg-clip-text text-transparent">Data's Potential?</span></h2>
+          <p class="text-gray-400 text-sm max-w-xl mx-auto">Join 2,400+ organizations transforming their decision-making with AI-powered strategic audits. Get your first report in under 30 seconds.</p>
+          <button onclick="switchView('auth')" class="inline-flex items-center gap-3 px-10 py-4 rounded-2xl bg-gradient-to-r from-mediumPurple via-royalBlue to-softBlue text-white font-bold text-sm shadow-2xl shadow-mediumPurple/30 hover:shadow-softBlue/30 hover:scale-105 transition-all duration-300">
+            <i data-lucide="zap" class="h-4 w-4"></i>
+            <span>Start Your Free Audit Now</span>
+            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- ============ FOOTER ============ -->
+      <footer class="border-t border-white/5 py-10 bg-darkCard/20 w-full mt-auto">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+          <div class="flex items-center space-x-2">
+            <div class="h-6 w-6 rounded-md bg-gradient-to-tr from-mediumPurple to-softBlue flex items-center justify-center">
+              <i data-lucide="bar-chart-3" class="h-3.5 w-3.5 text-white"></i>
+            </div>
+            <span class="font-outfit font-bold text-gray-400">ORGANALYTICS</span>
+            <span class="text-gray-600">&bull;</span>
+            <span>AI Organizational Analytics &copy; 2025</span>
+          </div>
+          <div class="flex items-center gap-6">
+            <span class="hover:text-white transition-colors cursor-pointer">Privacy</span>
+            <span class="hover:text-white transition-colors cursor-pointer">Terms</span>
+            <span class="hover:text-white transition-colors cursor-pointer">Contact</span>
+            <button onclick="document.getElementById('landing-hero').scrollIntoView({behavior:'smooth'})" class="text-gray-500 hover:text-white flex items-center space-x-1 transition-colors">
+              <span>Back to top</span>
+              <i data-lucide="arrow-up" class="h-3 w-3"></i>
+            </button>
+          </div>
+        </div>
+      </footer>
+    </div>
 
       
       <!-- HEADER -->

@@ -1,0 +1,60 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+web_cache/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+bin/
+obj/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Environment configurations and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!*.example
+
+# Databases and storage
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Project-specific ignored files
+test_output.pdf

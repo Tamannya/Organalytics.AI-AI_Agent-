@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Organizational Analytics Dashboard</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <!-- html2pdf.js for client-side high-quality PDF downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            darkBg: '#000000',
+            darkCard: '#0A0514', // Midnight Purple-Black
+            darkBorder: '#1F0F3E', // Deep Violet Border
+            midnightPurple: '#250F4F', // Top color from palette
+            mediumPurple: '#512E8B', // Second color
+            royalBlue: '#3F7FDE', // Third color
+            softBlue: '#8DA8FF' // Bottom color
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            outfit: ['Outfit', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --primary: #7C6FFF;
+      --accent: #8DA8FF;
+      --bg: #000000;
+      --card-bg: rgba(10, 5, 20, 0.85);
+      --text-primary: #E5E7EB;
+      --text-secondary: #9CA3AF;
+      --border: rgba(141, 168, 255, 0.08);
+      
+      --chart-1: #7C6FFF;
+      --chart-2: #3F7FDE;
+      --chart-3: #8DA8FF;
+      --chart-4: #EC4899;
+      --chart-5: #F59E0B;
+      --chart-6: #10B981;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    .font-outfit {
+      font-family: 'Outfit', sans-serif;
+    }
+    .glass-panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+    .glass-panel-hover:hover {
+      background: rgba(31, 15, 62, 0.95);
+      border-color: rgba(141, 168, 255, 0.4);
+      box-shadow: 0 0 25px rgba(81, 46, 139, 0.2);
+      transform: translateY(-2px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glow-border {
+      box-shadow: 0 0 15px rgba(81, 46, 139, 0.15);
+      border-color: rgba(81, 46, 139, 0.4);
+    }
+    .glow-border-blue {
+      box-shadow: 0 0 15px rgba(63, 127, 222, 0.15);
+      border-color: rgba(63, 127, 222, 0.4);
+    }
+    .text-gradient {
+      background: linear-gradient(to right, #8DA8FF, #512E8B);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .text-gradient-blue {
+      background: linear-gradient(to right, #3F7FDE, #8DA8FF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+    /* Animated floating elements */
+    @keyframes float1 {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+      100% { transform: translateY(0px) rotate(360deg); }
+    }
+    @keyframes float2 {
+      0% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(15px) scale(1.1); }
+      100% { transform: translateY(0px) scale(1); }
+    }
+    .floating-blob-1 {
+      animation: float1 15s infinite ease-in-out;
+    }
+    .floating-blob-2 {
+      animation: float2 12s infinite ease-in-out;
+    }
+    /* SVG Pipeline dash animation */
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -40;
+      }
+    }
+    .animate-dash {
+      stroke-dasharray: 8, 12;
+      animation: dash 3s linear infinite;
+    }
+    /* Scroll Animation */
+    .scroll-animate {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .scroll-animate.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* Miniature Page Preview Styles */
+    .mini-page {
+      width: 300px;
+      height: 424px;
+      padding: 15px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-size: 5px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    /* Subtle pulse for generate button */
+    @keyframes pulseSlow {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(81, 46, 139, 0.3); }
+      50% { opacity: 0.92; box-shadow: 0 0 20px 4px rgba(63, 127, 222, 0.2); }
+    }
+    .animate-pulse-subtle {
+      animation: pulseSlow 2.5s ease-in-out infinite;
+    }
+
+    /* Wizard card active highlight */
+    .wizard-card.border-softBlue { border-color: #8DA8FF; }
+    .wizard-card.border-emerald-500 { border-color: #10b981; }
+    .wizard-card.border-amber-500 { border-color: #f59e0b; }
+
+  </style>
+</head>
+<body class="overflow-x-hidden min-h-screen relative">
+
+  <!-- ==================== ANIMATED FLOATING BACKGROUND GRAPHICS ==================== -->
+  <div class="absolute top-1/4 left-10 w-96 h-96 bg-midnightPurple/10 rounded-full filter blur-[120px] floating-blob-1 pointer-events-none -z-10"></div>
+  <div class="absolute bottom-1/3 right-10 w-[450px] h-[450px] bg-royalBlue/10 rounded-full filter blur-[150px] floating-blob-2 pointer-events-none -z-10"></div>
+
+  <!-- ==================== MAIN APP ROOT ==================== -->
+  <div id="app-root" class="relative z-10">
+
+    <!-- LANDING VIEW -->
+    <div id="view-landing" class="min-h-screen relative overflow-y-auto scroll-smooth flex flex-col justify-between">
+      <!-- Starry / Glowing Background Blobs -->
+      <div class="absolute top-1/3 left-1/4 w-72 h-72 bg-midnightPurple/20 rounded-full filter blur-[100px] pointer-events-none -z-10 animate-pulse"></div>
+      <div class="absolute bottom-1/3 right-1/4 w-72 h-72 bg-royalBlue/15 rounded-full filter blur-[100px] pointer-events-none -z-10 animate-pulse"></div>
+
+      
+      <!-- HEADER -->
+      <header class="max-w-7xl mx-auto w-full px-6 py-6 flex items-center justify-between border-b border-darkBorder/40">
+        <div class="flex items-center space-x-3">
+          <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-mediumPurple via-royalBlue to-softBlue flex items-center justify-center shadow-lg">
+            <i data-lucide="bar-chart-3" class="h-5 w-5 text-white"></i>
+          </div>
+          <div>
+            <span class="font-outfit font-extrabold text-lg text-white block tracking-wide">ORGANALYTICS</span>
+            <span class="text-[9px] text-softBlue font-mono font-bold tracking-widest uppercase block">AI Audit Engine</span>
+          </div>
+        </div>
+        <button onclick="switchView('auth')" class="px-5 py-2 rounded-xl bg-darkCard border border-darkBorder hover:border-softBlue/40 text-gray-200 text-sm font-semibold transition-all duration-200 shadow-md">
+          Sign In
+        </button>
+      </header>
+
+      <!-- SECTION 1: HERO -->
+      <section id="landing-hero" class="max-w-7xl mx-auto w-full px-6 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 min-h-[75vh]">
+        <div class="flex-1 text-center lg:text-left space-y-6">
+          <div class="inline-flex items-center space-x-2 bg-darkCard/80 border border-darkBorder px-3.5 py-1.5 rounded-full text-xs font-semibold text-softBlue glow-border">
+            <span class="h-2 w-2 rounded-full bg-softBlue animate-ping"></span>
+            <span>Next-Generation Corporate Diagnostics</span>
+          </div>
+          <h2 class="text-4xl lg:text-6xl font-outfit font-extrabold text-white leading-tight">
+            Transform Raw Data into <span class="text-gradient">Strategic Growth</span>
+          </h2>
+          <p class="text-gray-400 text-lg max-w-xl mx-auto lg:mx-0">
+            Upload your financial spreadsheet and describe your organizational goals. Our Gemini-powered engine instantly models forecasts, isolates operational anomalies, and drafts exportable strategic audits.
+          </p>
+          <div class="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <button onclick="switchView('auth')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-mediumPurple via-royalBlue to-softBlue text-white font-bold flex items-center justify-center space-x-3 shadow-lg hover:opacity-95 transition-all duration-200">
+              <span>Get Started Free</span>
+              <i data-lucide="arrow-right" class="h-5 w-5"></i>
+            </button>
+            <button onclick="document.getElementById('landing-features').scrollIntoView({behavior: 'smooth'})" class="w-full sm:w-auto px-8 py-4 rounded-xl border border-darkBorder hover:border-softBlue/40 text-gray-300 font-semibold flex items-center justify-center space-x-2 transition-all">
+              <span>Explore Features</span>
+              <i data-lucide="chevron-down" class="h-5 w-5"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-1 flex justify-center items-center w-full max-w-xl mx-auto">
+          <!-- Premium visual dashboard teaser mock -->
+          <div class="glass-panel p-6 rounded-3xl border border-darkBorder/60 shadow-2xl relative w-full overflow-hidden glow-border">
+            <div class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-mediumPurple via-royalBlue to-softBlue animate-pulse"></div>
+            <div class="flex justify-between items-center mb-6">
+              <div class="flex space-x-1.5">
+                <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+                <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+                <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+              </div>
+              <span class="text-[10px] text-softBlue font-mono font-bold tracking-widest bg-midnightPurple/30 border border-midnightPurple/50 px-2.5 py-0.5 rounded-full">SYSTEM AUDIT ACTIVE</span>
+            </div>
+            
+            <div class="space-y-4">
+              <!-- Mock KPI mini cards -->
+              <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 bg-black border border-darkBorder rounded-xl">
+                  <span class="text-[10px] text-gray-500 block uppercase font-bold">Revenue Run-rate</span>
+                  <span class="text-xl font-bold font-outfit text-white block mt-1">$4,850,000</span>
+                  <span class="text-[9px] text-emerald-400 font-semibold block mt-0.5">+14.2% YoY</span>
+                </div>
+                <div class="p-4 bg-black border border-darkBorder rounded-xl">
+                  <span class="text-[10px] text-gray-500 block uppercase font-bold">Audit Score</span>
+                  <span class="text-xl font-bold font-outfit text-softBlue block mt-1">82 / 100</span>
+                  <span class="text-[9px] text-gray-500 block mt-0.5">High Efficiency</span>
+                </div>
+              </div>
+              
+              <!-- Mock line chart SVG -->
+              <div class="p-4 bg-black border border-darkBorder rounded-xl h-36 flex flex-col justify-between">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] text-gray-400 font-bold">6-Month Trend & ARIMA Projection</span>
+                  <div class="flex space-x-3 text-[8px] text-gray-500">
+                    <span class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-royalBlue mr-1"></span>History</span>
+                    <span class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-softBlue mr-1"></span>Forecast</span>
+                  </div>
+                </div>
+                <div class="flex-grow flex items-end justify-between relative mt-2">
+                  <!-- Visual Grid lines -->
+                  <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-10">
+                    <div class="border-b border-white w-full"></div>
+                    <div class="border-b border-white w-full"></div>
+                    <div class="border-b border-white w-full"></div>
+                  </div>
+                  <!-- SVG projection paths -->
+                  <svg class="w-full h-full" viewBox="0 0 100 40" preserveAspectRatio="none">
+                    <path d="M 0 35 L 20 28 L 40 32 L 60 22 L 80 15 L 100 8" fill="none" stroke="#3F7FDE" stroke-width="2.5" />
+                    <path d="M 60 22 L 80 18 L 100 12" fill="none" stroke="#8DA8FF" stroke-width="2" stroke-dasharray="3,3" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: ANIMATED FEATURE CARDS -->
+      <section id="landing-features" class="max-w-7xl mx-auto w-full px-6 py-20 border-t border-darkBorder/30">
+        <div class="text-center max-w-2xl mx-auto space-y-4 mb-16">
+          <span class="text-xs font-bold text-softBlue uppercase tracking-widest font-mono">Platform Capabilities</span>
+          <h3 class="text-3xl lg:text-4xl font-outfit font-extrabold text-white">Full-Stack Business Intelligence</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Organalytics incorporates advanced statistics, linear regressions, rolling anomaly checkers, and generative strategy execution.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Card 1 -->
+          <div class="glass-panel p-8 rounded-3xl border border-darkBorder/50 shadow-md glass-panel-hover scroll-animate flex flex-col justify-between h-[360px]">
+            <div>
+              <div class="h-12 w-12 rounded-xl bg-mediumPurple/15 border border-mediumPurple/30 flex items-center justify-center text-softBlue mb-6">
+                <i data-lucide="cpu" class="h-6 w-6"></i>
+              </div>
+              <h3 class="font-outfit font-bold text-white text-lg">Gemini Strategic Engine</h3>
+              <p class="text-gray-400 text-xs mt-3 leading-relaxed">
+                Interprets business pain points to configure target KPI dashboards, compile comprehensive SWOT summaries, and write prioritized action plans.
+              </p>
+            </div>
+            <!-- Animated chatbot logic preview -->
+            <div class="mt-4 p-3 bg-black/60 border border-darkBorder rounded-xl font-mono text-[9px] space-y-1.5 h-20 overflow-hidden relative">
+              <div class="flex items-center space-x-1.5 text-softBlue">
+                <span class="w-1.5 h-1.5 rounded-full bg-softBlue animate-ping"></span>
+                <span>gemini-pro > pipeline_active</span>
+              </div>
+              <div class="text-gray-400 border-l border-mediumPurple pl-2 py-0.5 leading-normal animate-pulse">
+                Analyzing requirements... Isolated 14.2% YoY growth potential via CRM conversion optimization.
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="glass-panel p-8 rounded-3xl border border-darkBorder/50 shadow-md glass-panel-hover scroll-animate flex flex-col justify-between h-[360px]">
+            <div>
+              <div class="h-12 w-12 rounded-xl bg-royalBlue/15 border border-royalBlue/30 flex items-center justify-center text-softBlue mb-6">
+                <i data-lucide="line-chart" class="h-6 w-6"></i>
+              </div>
+              <h3 class="font-outfit font-bold text-white text-lg">Predictive ARIMA Modeling</h3>
+              <p class="text-gray-400 text-xs mt-3 leading-relaxed">
+                Aggregates historical transactions, isolates underlying seasonal trends, and projects future revenue cycles with standard deviation spreads.
+              </p>
+            </div>
+            <!-- Animated ARIMA graph preview -->
+            <div class="mt-4 p-3 bg-black/60 border border-darkBorder rounded-xl h-20 flex flex-col justify-end relative overflow-hidden">
+              <div class="absolute top-2 left-2 text-[8px] text-gray-500 font-mono">6-MONTH ARIMA FORECAST</div>
+              <svg class="w-full h-10 overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+                <path d="M 0 25 Q 25 15 50 20 T 100 5" fill="none" stroke="#3F7FDE" stroke-width="1.5" />
+                <path d="M 50 20 T 100 5" fill="none" stroke="#8DA8FF" stroke-width="1.5" stroke-dasharray="2,2" />
+                <!-- Shaded confidence interval -->
+                <path d="M 50 20 L 75 14 L 100 0 L 100 14 L 75 24 Z" fill="rgba(141, 168, 255, 0.08)" />
+              </svg>
+              <div class="flex justify-between text-[7px] text-gray-500 font-mono mt-1">
+                <span>Historical Run</span>
+                <span>Upper/Lower CI bounds</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="glass-panel p-8 rounded-3xl border border-darkBorder/50 shadow-md glass-panel-hover scroll-animate flex flex-col justify-between h-[360px]">
+            <div>
+              <div class="h-12 w-12 rounded-xl bg-softBlue/15 border border-softBlue/30 flex items-center justify-center text-softBlue mb-6">
+                <i data-lucide="shield-alert" class="h-6 w-6"></i>
+              </div>
+              <h3 class="font-outfit font-bold text-white text-lg">Z-Score Outlier Checks</h3>
+              <p class="text-gray-400 text-xs mt-3 leading-relaxed">
+                Runs statistical anomaly sweeps across your departmental ledgers to isolate abnormal cost overrides and revenue drops.
+              </p>
+            </div>
+            <!-- Animated Z-score bars preview -->
+            <div class="mt-4 p-3 bg-black/60 border border-darkBorder rounded-xl h-20 flex items-center justify-around relative overflow-hidden">
+              <div class="absolute top-2 left-2 text-[8px] text-gray-500 font-mono font-bold">OUTLIER ALERTS</div>
+              <!-- Bar 1 -->
+              <div class="flex flex-col items-center justify-end h-10 w-4">
+                <div class="bg-royalBlue/40 w-full rounded-t-sm" style="height: 40%"></div>
+                <span class="text-[6px] text-gray-500 mt-1">R&D</span>
+              </div>
+              <!-- Bar 2 Anomaly -->
+              <div class="flex flex-col items-center justify-end h-10 w-4 relative">
+                <span style="font-size: 6px;" class="absolute -top-3 text-[6px] text-rose-400 font-bold animate-bounce">Z>2.8</span>
+                <div class="bg-rose-500 w-full rounded-t-sm animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.5)]" style="height: 90%"></div>
+                <span class="text-[6px] text-rose-400 font-bold mt-1">Mkt</span>
+              </div>
+              <!-- Bar 3 -->
+              <div class="flex flex-col items-center justify-end h-10 w-4">
+                <div class="bg-royalBlue/40 w-full rounded-t-sm" style="height: 25%"></div>
+                <span class="text-[6px] text-gray-500 mt-1">HR</span>
+              </div>
+              <!-- Bar 4 -->
+              <div class="flex flex-col items-center justify-end h-10 w-4">
+                <div class="bg-royalBlue/40 w-full rounded-t-sm" style="height: 55%"></div>
+                <span class="text-[6px] text-gray-500 mt-1">Ops</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: HOW IT WORKS PREVIEW -->
+      <section id="landing-pipeline" class="max-w-7xl mx-auto w-full px-6 py-20 border-t border-darkBorder/30">
+        <div class="flex flex-col md:flex-row justify-between items-center border-b border-darkBorder/40 pb-6 mb-16 gap-4">
+          <div>
+            <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">How the Analytics Engine Works</h2>
+            <p class="text-sm text-gray-500 mt-1">Stunning visual data pipeline explaining the dashboard creation process</p>
+          </div>
+          <span class="text-xs font-mono font-bold text-softBlue bg-[#250F4F]/40 border border-darkBorder px-3 py-1.5 rounded-full">Gemini 3.5 Engine</span>
+        </div>
+
+        <!-- Flowchart container -->
+        <div class="glass-panel p-8 rounded-3xl border border-darkBorder/50 shadow-xl space-y-8 scroll-animate">
+          <!-- Animated pipeline row -->
+          <div class="relative hidden lg:block overflow-visible py-10 my-4">
+            <!-- Connecting glowing SVG paths with animated sliding packets -->
+            <svg viewBox="0 0 1000 4" class="absolute top-1/2 left-0 w-full h-1 -translate-y-1/2 -z-10 overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Dotted base line from Node 1 to Node 6 -->
+              <path d="M 40 2 L 960 2" stroke="#1F0F3E" stroke-width="4" stroke-dasharray="8,12" />
+              <path class="animate-dash" d="M 40 2 L 960 2" stroke="#8DA8FF" stroke-width="3" />
+              
+              <!-- sliding packets running the entire length -->
+              <circle r="4" fill="#54E1EF" style="filter: drop-shadow(0 0 6px #54E1EF)">
+                <animateMotion dur="4s" repeatCount="indefinite" path="M 40 2 L 960 2" />
+              </circle>
+              <circle r="4" fill="#8DA8FF" style="filter: drop-shadow(0 0 6px #8DA8FF)">
+                <animateMotion dur="4s" begin="2s" repeatCount="indefinite" path="M 40 2 L 960 2" />
+              </circle>
+            </svg>
+
+            <div class="flex justify-between px-2">
+              <!-- Node 1 -->
+              <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="h-12 w-12 rounded-full border-2 border-softBlue bg-[#000000] flex items-center justify-center text-softBlue font-bold font-outfit shadow-lg group-hover:border-[#54E1EF] group-hover:shadow-[0_0_15px_rgba(84,225,239,0.3)] transition-all cursor-pointer"><i data-lucide="target" class="h-5 w-5"></i></div>
+                <span class="text-xs font-bold text-white tracking-wide text-center">1. Define Goals</span>
+                <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">AI chatbot records organization profile</span>
+              </div>
+
+              <!-- Node 2 -->
+              <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="h-12 w-12 rounded-full border-2 border-mediumPurple bg-[#000000] flex items-center justify-center text-softBlue font-bold font-outfit shadow-lg group-hover:border-softBlue group-hover:shadow-[0_0_15px_rgba(141,168,255,0.3)] transition-all cursor-pointer"><i data-lucide="upload-cloud" class="h-5 w-5"></i></div>
+                <span class="text-xs font-bold text-white tracking-wide text-center">2. Ingest Ledger</span>
+                <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">Drop CSV sheet or load demo database</span>
+              </div>
+
+              <!-- Node 3 -->
+              <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="h-12 w-12 rounded-full border-2 border-royalBlue bg-[#000000] flex items-center justify-center text-softBlue font-bold font-outfit shadow-lg group-hover:border-royalBlue group-hover:shadow-[0_0_15px_rgba(63,127,222,0.3)] transition-all cursor-pointer"><i data-lucide="activity" class="h-5 w-5"></i></div>
+                <span class="text-xs font-bold text-white tracking-wide text-center">3. Anomaly Scan</span>
+                <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">Compute z-scores for spending deviations</span>
+              </div>
+
+              <!-- Node 4 -->
+              <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="h-12 w-12 rounded-full border-2 border-softBlue bg-[#000000] flex items-center justify-center text-softBlue font-bold font-outfit shadow-lg group-hover:border-softBlue group-hover:shadow-[0_0_15px_rgba(141,168,255,0.3)] transition-all cursor-pointer"><i data-lucide="trending-up" class="h-5 w-5"></i></div>
+                <span class="text-xs font-bold text-white tracking-wide text-center">4. Forecast Models</span>
+                <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">6-month ARIMA projection curves</span>
+              </div>
+
+              <!-- Node 5 -->
+              <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="h-12 w-12 rounded-full border-2 border-mediumPurple bg-[#000000] flex items-center justify-center text-softBlue font-bold font-outfit shadow-lg group-hover:border-mediumPurple group-hover:shadow-[0_0_15px_rgba(81,46,139,0.3)] transition-all cursor-pointer"><i data-lucide="sparkles" class="h-5 w-5"></i></div>
+                <span class="text-xs font-bold text-white tracking-wide text-center">5. AI Strategy</span>
+                <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">Gemini audits metrics & structures SWOT</span>
+              </div>
+
+              <!-- Node 6 -->
+              <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="h-12 w-12 rounded-full bg-gradient-to-tr from-mediumPurple to-softBlue flex items-center justify-center text-white font-bold font-outfit shadow-lg group-hover:shadow-[0_0_15px_rgba(141,168,255,0.5)] transition-all cursor-pointer"><i data-lucide="sliders" class="h-5 w-5"></i></div>
+                <span class="text-xs font-bold text-white tracking-wide text-center">6. Interactive View</span>
+                <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">Adjust simulator variables & export PDF</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Grid (Vertical) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-6">
+            <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+              <div class="h-9 w-9 rounded-full bg-softBlue/10 text-softBlue flex items-center justify-center font-bold">1</div>
+              <div>
+                <h4 class="font-bold text-white text-xs">Define Goals</h4>
+                <p style="font-size: 10px;" class="text-gray-500">AI chatbot records organization profile</p>
+              </div>
+            </div>
+            <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+              <div class="h-9 w-9 rounded-full bg-mediumPurple/10 text-softBlue flex items-center justify-center font-bold">2</div>
+              <div>
+                <h4 class="font-bold text-white text-xs">Ingest Ledger</h4>
+                <p style="font-size: 10px;" class="text-gray-500">Drop CSV sheet or load demo database</p>
+              </div>
+            </div>
+            <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+              <div class="h-9 w-9 rounded-full bg-royalBlue/10 text-softBlue flex items-center justify-center font-bold">3</div>
+              <div>
+                <h4 class="font-bold text-white text-xs">Anomaly Scan</h4>
+                <p style="font-size: 10px;" class="text-gray-500">Compute z-scores for spending deviations</p>
+              </div>
+            </div>
+            <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+              <div class="h-9 w-9 rounded-full bg-softBlue/10 text-softBlue flex items-center justify-center font-bold">4</div>
+              <div>
+                <h4 class="font-bold text-white text-xs">Forecast Models</h4>
+                <p style="font-size: 10px;" class="text-gray-500">6-month ARIMA projection curves</p>
+              </div>
+            </div>
+            <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+              <div class="h-9 w-9 rounded-full bg-mediumPurple/10 text-softBlue flex items-center justify-center font-bold">5</div>
+              <div>
+                <h4 class="font-bold text-white text-xs">AI Strategy</h4>
+                <p style="font-size: 10px;" class="text-gray-500">Gemini audits metrics & structures SWOT</p>
+              </div>
+            </div>
+            <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+              <div class="h-9 w-9 rounded-full bg-gradient-to-tr from-mediumPurple to-softBlue text-white flex items-center justify-center font-bold">6</div>
+              <div>
+                <h4 class="font-bold text-white text-xs">Interactive View</h4>
+                <p style="font-size: 10px;" class="text-gray-500">Adjust simulator variables & export PDF</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="border-t border-darkBorder/30 py-8 bg-darkCard/20 w-full mt-auto">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="layers" class="h-4 w-4 text-softBlue"></i>
+            <span>AI Organizational Analytics Dashboard. All rights reserved.</span>
+          </div>
+          <button onclick="document.getElementById('landing-hero').scrollIntoView({behavior: 'smooth'})" class="text-gray-400 hover:text-white flex items-center space-x-1">
+            <span>Back to Top</span>
+            <i data-lucide="arrow-up" class="h-3 w-3"></i>
+          </button>
+        </div>
+      </footer>
+    </div>
+
+
+    <!-- AUTH VIEW -->
+    <div id="view-auth" class="hidden min-h-screen flex flex-col justify-center items-center p-6 relative overflow-hidden">
+      <!-- Starry / Glowing Background Blobs -->
+      <div class="absolute top-1/3 left-1/4 w-72 h-72 bg-midnightPurple/20 rounded-full filter blur-[100px] pointer-events-none -z-10 animate-pulse"></div>
+      <div class="absolute bottom-1/3 right-1/4 w-72 h-72 bg-royalBlue/15 rounded-full filter blur-[100px] pointer-events-none -z-10"></div>
+
+      <button onclick="switchView('landing')" class="flex items-center space-x-3 mb-8 focus:outline-none hover:opacity-90 transition-opacity">
+        <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-mediumPurple via-royalBlue to-softBlue flex items-center justify-center shadow-lg">
+          <i data-lucide="bar-chart-3" class="h-5 w-5 text-white"></i>
+        </div>
+        <span class="font-outfit font-extrabold text-lg text-white block tracking-wide">ORGANALYTICS</span>
+      </button>
+
+      <!-- Panel: Login / Register card -->
+      <div id="auth-panel-main" class="glass-panel w-full max-w-md rounded-3xl p-8 shadow-2xl border border-darkBorder glow-border flex flex-col">
+        <div class="flex border-b border-darkBorder/60 mb-6 text-center">
+          <button id="auth-tab-signin" onclick="setAuthMode(true)" class="flex-1 pb-3 text-sm font-semibold tracking-wide border-b-2 border-softBlue text-white transition-all">
+            Sign In
+          </button>
+          <button id="auth-tab-signup" onclick="setAuthMode(false)" class="flex-1 pb-3 text-sm font-semibold tracking-wide border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-all">
+            Create Account
+          </button>
+        </div>
+
+        <h3 id="auth-title" class="text-2xl font-bold font-outfit text-white text-center mb-6">Log in</h3>
+        <p id="auth-desc" class="text-xs text-gray-500 text-center -mt-4 mb-6">Enter credentials to access your insights history.</p>
+
+        <div id="auth-error" class="hidden mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start space-x-3 text-rose-400 text-xs">
+          <i data-lucide="alert-circle" class="h-4.5 w-4.5 flex-shrink-0 mt-0.5"></i>
+          <span id="auth-error-msg">Error details.</span>
+        </div>
+
+        <!-- Google button at the top if Sign Up -->
+        <div id="google-btn-container-top" class="hidden">
+          <button type="button" onclick="triggerGoogleLogin()" class="w-full mb-4 py-3 px-4 rounded-xl border border-gray-300 hover:bg-gray-50 bg-white flex items-center justify-center space-x-2.5 text-xs text-gray-700 font-bold transition-all shadow-md">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            <span class="text-gray-800">Sign up with Google</span>
+          </button>
+
+          <div class="flex items-center my-4 text-xs text-gray-500 font-semibold">
+            <div class="flex-grow border-t border-darkBorder/40"></div>
+            <span class="px-3">or with</span>
+            <div class="flex-grow border-t border-darkBorder/40"></div>
+          </div>
+        </div>
+
+        <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+          <div id="auth-field-name" class="hidden space-y-1">
+            <label class="text-xs font-semibold text-gray-400">Full Name</label>
+            <input type="text" id="auth-name" placeholder="Name" class="w-full px-4 py-3 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-sm text-white placeholder-gray-600 transition-colors" />
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-400">Email Address</label>
+            <input type="email" id="auth-email" required placeholder="Email" class="w-full px-4 py-3 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-sm text-white placeholder-gray-600 transition-colors" />
+          </div>
+
+          <div id="auth-field-password" class="space-y-1">
+            <label class="text-xs font-semibold text-gray-400">Password</label>
+            <div class="relative">
+              <input type="password" id="auth-password" placeholder="Password" class="w-full pl-4 pr-10 py-3 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-sm text-white placeholder-gray-600 transition-colors" />
+              <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300">
+                <i id="auth-password-eye" data-lucide="eye" class="h-4.5 w-4.5"></i>
+              </button>
+            </div>
+            <div class="flex justify-end pt-1">
+              <button type="button" onclick="showForgotPasswordPanel(true)" id="auth-link-forgot" class="text-xs text-gray-400 hover:text-softBlue underline hover:no-underline transition-colors">Forgot password?</button>
+            </div>
+          </div>
+
+          <!-- reCAPTCHA Mockup Box (Sign Up Only) -->
+          <div id="auth-field-recaptcha" class="hidden py-2">
+            <div class="border border-darkBorder bg-black/60 rounded-lg p-3 flex items-center justify-between max-w-xs">
+              <div class="flex items-center space-x-3">
+                <input type="checkbox" id="recaptcha-check" class="h-5 w-5 rounded border-darkBorder bg-black text-[#54E1EF] focus:ring-[#54E1EF]" />
+                <label for="recaptcha-check" class="text-xs font-medium text-gray-300 select-none cursor-pointer">I'm not a robot</label>
+              </div>
+              <div class="flex flex-col items-center justify-center">
+                <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" class="h-7 w-7 opacity-80" alt="reCAPTCHA" />
+                <span style="font-size: 8px;" class="text-[8px] text-gray-500 font-mono mt-0.5">reCAPTCHA</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" id="auth-btn" class="w-full mt-6 py-3 px-4 rounded-xl bg-[#54E1EF] hover:bg-[#46C8D5] text-black font-bold flex items-center justify-center space-x-2 transition-all shadow-md">
+            <span id="auth-btn-text">Continue</span>
+            <i data-lucide="chevron-right" class="h-4.5 w-4.5"></i>
+          </button>
+        </form>
+
+        <!-- Google button at bottom if Sign In -->
+        <div id="google-btn-container-bottom" class="mt-4">
+          <div class="flex items-center my-4 text-xs text-gray-500 font-semibold">
+            <div class="flex-grow border-t border-darkBorder/40"></div>
+            <span class="px-3">or</span>
+            <div class="flex-grow border-t border-darkBorder/40"></div>
+          </div>
+
+          <button type="button" onclick="triggerGoogleLogin()" class="w-full py-3 px-4 rounded-xl border border-gray-300 hover:bg-gray-50 bg-white flex items-center justify-center space-x-2.5 text-xs text-gray-700 font-bold transition-all shadow-md">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            <span class="text-gray-800">Sign in with Google</span>
+          </button>
+        </div>
+
+        <div class="text-center mt-6">
+          <button type="button" id="auth-switch-link" onclick="setAuthMode(!isLoginMode)" class="text-xs text-[#54E1EF] hover:underline focus:outline-none">I don't have an account</button>
+        </div>
+
+        <p id="auth-terms-text" class="hidden text-center text-[10px] text-gray-500 mt-4 leading-relaxed">
+          By signing up, you agree to the <span class="underline cursor-pointer">Terms of Service</span>.
+        </p>
+      </div>
+
+      <!-- Panel: Forgot Password (hidden on load) -->
+      <div id="auth-panel-forgot" class="hidden glass-panel w-full max-w-md rounded-3xl p-8 shadow-2xl border border-darkBorder glow-border animate-fade-in flex flex-col">
+        <h3 class="text-2xl font-bold font-outfit text-white text-center mb-4">Reset Password</h3>
+        
+        <!-- Progress stepper mockup -->
+        <div class="flex items-center justify-between mb-6 px-4">
+          <div class="flex flex-col items-center">
+            <span id="step-dot-1" class="h-6 w-6 rounded-full bg-[#54E1EF] text-black font-bold text-xs flex items-center justify-center shadow-md">1</span>
+            <span class="text-[9px] text-gray-400 mt-1">Email</span>
+          </div>
+          <div class="flex-grow h-[2px] bg-darkBorder mx-2"></div>
+          <div class="flex flex-col items-center">
+            <span id="step-dot-2" class="h-6 w-6 rounded-full bg-black border border-darkBorder text-gray-500 font-bold text-xs flex items-center justify-center">2</span>
+            <span class="text-[9px] text-gray-500 mt-1">Verify</span>
+          </div>
+          <div class="flex-grow h-[2px] bg-darkBorder mx-2"></div>
+          <div class="flex flex-col items-center">
+            <span id="step-dot-3" class="h-6 w-6 rounded-full bg-black border border-darkBorder text-gray-500 font-bold text-xs flex items-center justify-center">3</span>
+            <span class="text-[9px] text-gray-500 mt-1">Reset</span>
+          </div>
+        </div>
+
+        <div id="forgot-error" class="hidden mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start space-x-3 text-rose-400 text-xs">
+          <i data-lucide="alert-circle" class="h-4.5 w-4.5 flex-shrink-0 mt-0.5"></i>
+          <span id="forgot-error-msg">Error details.</span>
+        </div>
+        
+        <!-- Step 1: Request Code -->
+        <form id="forgot-step-1" onsubmit="handleRequestResetCode(event)" class="space-y-4">
+          <p class="text-gray-400 text-xs text-center leading-relaxed">Enter your registered email address below. We'll generate a verification code.</p>
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-400">Email Address</label>
+            <input type="email" id="forgot-email" required placeholder="Email" class="w-full px-4 py-3 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-sm text-white placeholder-gray-600 transition-colors" />
+          </div>
+          <div class="flex space-x-3 pt-2">
+            <button type="button" onclick="showForgotPasswordPanel(false)" class="flex-1 py-3 px-4 bg-black border border-darkBorder hover:bg-darkCard text-gray-300 font-bold rounded-xl text-xs transition-colors">
+              Cancel
+            </button>
+            <button type="submit" class="flex-1 py-3 px-4 bg-[#54E1EF] hover:bg-[#46C8D5] text-black font-bold rounded-xl text-xs shadow-md">
+              Send Code
+            </button>
+          </div>
+        </form>
+
+        <!-- Step 2: Input Code & Reset Password -->
+        <form id="forgot-step-2" class="hidden space-y-4" onsubmit="handleResetPasswordSubmit(event)">
+          <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs text-center border-l-4 border-emerald-400">
+            Verification code sent! (Mock bypass code: <strong>123456</strong>)
+          </div>
+          
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-400">Verification Code</label>
+            <input type="text" id="forgot-code" required placeholder="123456" class="w-full px-4 py-3 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-sm text-white placeholder-gray-600 text-center tracking-widest font-mono" />
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-400">New Password</label>
+            <input type="password" id="forgot-new-password" required placeholder="New Password" class="w-full px-4 py-3 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-sm text-white placeholder-gray-600" />
+          </div>
+
+          <div class="flex space-x-3 pt-2">
+            <button type="button" onclick="showForgotPasswordPanel(false)" class="flex-1 py-3 px-4 bg-black border border-darkBorder hover:bg-darkCard text-gray-300 font-bold rounded-xl text-xs transition-colors">
+              Cancel
+            </button>
+            <button type="submit" class="flex-1 py-3 px-4 bg-[#54E1EF] hover:bg-[#46C8D5] text-black font-bold rounded-xl text-xs shadow-md">
+              Reset Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+    <!-- SHELL LAYOUT (FOR AUTHENTICATED VIEWS) -->
+    <div id="app-shell" class="hidden min-h-screen flex text-gray-100 font-sans">
+      
+      <!-- SIDEBAR -->
+      <aside class="w-64 bg-black border-r border-darkBorder flex-col justify-between h-screen sticky top-0 md:flex hidden flex-col justify-between h-screen sticky top-0">
+        <div>
+          <div class="p-6 border-b border-darkBorder flex items-center space-x-3">
+            <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-mediumPurple via-royalBlue to-softBlue flex items-center justify-center shadow-lg">
+              <i data-lucide="bar-chart-3" class="h-5 w-5 text-white"></i>
+            </div>
+            <div>
+              <span class="font-outfit font-extrabold text-lg text-white block tracking-wide">ORGANALYTICS</span>
+              <span class="text-[10px] text-softBlue font-mono font-bold tracking-widest uppercase">AI Engine</span>
+            </div>
+          </div>
+
+          <nav class="p-4 space-y-1">
+            <button id="nav-new" onclick="selectTab('new-analysis')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+              <i data-lucide="plus-circle" class="h-5 w-5"></i>
+              <span>New Analysis</span>
+            </button>
+            <button id="nav-history" onclick="selectTab('history')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium text-white bg-gradient-to-r from-mediumPurple/10 to-royalBlue/10 border-l-4 border-mediumPurple">
+              <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
+              <span>My Dashboards</span>
+            </button>
+            <button id="nav-about" onclick="selectTab('about')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+              <i data-lucide="help-circle" class="h-5 w-5"></i>
+              <span>How it Works</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- PROFILE BLOCK LINK (View Profile) -->
+        <div class="p-4 border-t border-darkBorder bg-darkCard/40">
+          <div onclick="selectTab('profile')" class="flex items-center space-x-3 mb-4 cursor-pointer hover:bg-darkBorder/20 p-2 rounded-xl transition-all">
+            <div id="user-avatar" class="h-10 w-10 rounded-full bg-gradient-to-br from-mediumPurple via-royalBlue to-softBlue flex items-center justify-center font-outfit font-bold text-white shadow-md">
+              U
+            </div>
+            <div class="overflow-hidden flex-1">
+              <span id="user-display-name" class="font-semibold text-sm text-gray-200 block truncate leading-tight">User Name</span>
+              <span id="user-display-email" class="text-[10px] text-gray-500 block truncate">email@example.com</span>
+            </div>
+            <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i>
+          </div>
+          <button onclick="handleLogout()" class="w-full flex items-center justify-center space-x-2 py-2 px-4 rounded-lg border border-darkBorder hover:bg-rose-500/10 hover:border-rose-500/30 hover:text-rose-400 text-gray-400 text-xs font-semibold transition-all">
+            <i data-lucide="log-out" class="h-4 w-4"></i>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- CONTENT FRAME -->
+      <div class="flex-grow flex flex-col min-h-screen bg-black pb-20 md:pb-0">
+        
+        <!-- HEADER -->
+        <header class="bg-black/60 backdrop-blur-md border-b border-darkBorder/60 py-4 px-8 flex items-center justify-between sticky top-0 z-10">
+          <div>
+            <h1 id="header-title" class="text-xl font-bold font-outfit text-white tracking-wide">Saved Audits</h1>
+            <p class="text-xs text-gray-500 mt-0.5">AI-Powered Organizational Diagnostic</p>
+          </div>
+          <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-2 text-gray-400 text-xs font-medium">
+              <i data-lucide="calendar" class="h-4 w-4 text-softBlue"></i>
+              <span id="current-date-str">Saturday, Jun 20, 2026</span>
+            </div>
+            <div onclick="selectTab('profile')" class="flex items-center space-x-2 border border-darkBorder bg-darkCard/50 py-1.5 px-3 rounded-full text-xs font-semibold text-gray-300 cursor-pointer hover:border-softBlue/30 transition-colors">
+              <i data-lucide="user" class="h-3.5 w-3.5 text-royalBlue"></i>
+              <span id="header-user-badge">User</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- PANEL CONTAINER -->
+        <main class="flex-grow p-8">
+
+          <!-- PANEL: HISTORY LIST -->
+          <div id="panel-history" class="space-y-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-darkBorder/40 pb-6 gap-4">
+              <div>
+                <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Audit History</h2>
+                <p class="text-sm text-gray-500 mt-1">Manage and reload previous organizational audits</p>
+              </div>
+              <div class="flex items-center space-x-3 w-full md:w-auto">
+                <div class="relative flex-grow md:flex-grow-0 md:w-64">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                    <i data-lucide="search" class="h-4 w-4"></i>
+                  </span>
+                  <input type="text" id="history-search" oninput="handleHistorySearch(event)" placeholder="Search audits..." class="w-full pl-9 pr-4 py-2 bg-black border border-darkBorder rounded-xl text-xs text-white focus:outline-none focus:border-softBlue/60 placeholder-gray-600 transition-colors" />
+                </div>
+                <button onclick="selectTab('new-analysis')" class="px-5 py-2.5 bg-darkCard border border-darkBorder hover:border-softBlue/40 text-gray-200 text-xs font-semibold rounded-xl transition-all shadow-md flex-shrink-0">
+                  New Audit
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter pills -->
+            <div class="flex flex-wrap gap-2 items-center">
+              <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mr-2">Filter Industry:</span>
+              <button id="pill-all" onclick="filterHistoryIndustry('All')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-mediumPurple/20 text-softBlue border border-mediumPurple/40 transition-all">All</button>
+              <button id="pill-retail" onclick="filterHistoryIndustry('Retail / E-commerce')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-black border border-darkBorder text-gray-400 hover:text-white transition-all">Retail</button>
+              <button id="pill-saas" onclick="filterHistoryIndustry('SaaS Technology')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-black border border-darkBorder text-gray-400 hover:text-white transition-all">SaaS Tech</button>
+              <button id="pill-health" onclick="filterHistoryIndustry('Healthcare')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-black border border-darkBorder text-gray-400 hover:text-white transition-all">Healthcare</button>
+              <button id="pill-ent" onclick="filterHistoryIndustry('Entertainment')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-black border border-darkBorder text-gray-400 hover:text-white transition-all">Entertainment</button>
+              <button id="pill-ops" onclick="filterHistoryIndustry('Logistics & Supply Chain')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-black border border-darkBorder text-gray-400 hover:text-white transition-all">Logistics</button>
+            </div>
+
+            <!-- Empty state fallback -->
+            <div id="history-empty" class="hidden glass-panel rounded-2xl border border-darkBorder/50 p-12 text-center max-w-xl mx-auto space-y-6">
+              <div class="h-14 w-14 rounded-full bg-darkBorder/40 border border-darkBorder flex items-center justify-center text-gray-400 mx-auto">
+                <i data-lucide="layout-grid" class="h-7 w-7"></i>
+              </div>
+              <div class="space-y-2">
+                <h3 class="font-outfit font-bold text-white text-lg">No Matching Audits Found</h3>
+                <p class="text-gray-400 text-xs max-w-xs mx-auto leading-relaxed">
+                  Adjust your search or filter settings, or start by submitting your company requirements.
+                </p>
+              </div>
+              <button onclick="selectTab('new-analysis')" class="px-6 py-3 bg-gradient-to-r from-mediumPurple via-royalBlue to-softBlue text-white font-bold rounded-xl text-sm shadow-md hover:opacity-95">
+                Create New Analysis
+              </button>
+            </div>
+
+            <!-- Grid listing -->
+            <div id="history-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+
+          <!-- PANEL: NEW ANALYSIS — 3-STEP WIZARD -->
+          <div id="panel-new-analysis" class="hidden flex flex-col" style="min-height: calc(100vh - 140px);">
+
+            <!-- ─── Page Header ─── -->
+            <div class="mb-6 border-b border-darkBorder/40 pb-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">New Analysis</h2>
+                  <p class="text-sm text-gray-500 mt-1">Set up your organizational dashboard in 3 steps</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- ─── Gemini Vision API Health Banner (shown if key missing) ─── -->
+            <div id="gemini-health-banner" class="hidden mb-4 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-start space-x-3">
+              <i data-lucide="alert-triangle" class="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5"></i>
+              <div class="flex-grow">
+                <p class="text-xs text-amber-300 font-semibold">Vision upload is unavailable — Gemini API key not configured.</p>
+                <p class="text-[10px] text-amber-500 mt-0.5">CSV upload and Demo dataset still work normally.
+                  <button onclick="toggleGeminiFixInfo()" class="underline hover:text-amber-300 ml-1">Learn how to fix →</button>
+                </p>
+                <div id="gemini-fix-info" class="hidden mt-2 text-[10px] text-amber-500 space-y-1">
+                  <p>1. Get a free key at <span class="text-amber-300 font-semibold">aistudio.google.com</span></p>
+                  <p>2. Add <code class="bg-black/40 px-1 rounded">GEMINI_API_KEY=your_key</code> to your <code class="bg-black/40 px-1 rounded">.env</code> file</p>
+                  <p>3. Restart the server</p>
+                </div>
+              </div>
+              <button onclick="document.getElementById('gemini-health-banner').classList.add('hidden')" class="text-amber-500 hover:text-amber-300 flex-shrink-0">
+                <i data-lucide="x" class="h-3.5 w-3.5"></i>
+              </button>
+            </div>
+
+            <!-- ─── Step Indicator ─── -->
+            <div class="flex items-center justify-center gap-0 mb-8 select-none" id="wizard-step-indicator">
+              <!-- Step 1 -->
+              <button onclick="wizardGoBack(1)" id="wizard-dot-1" class="flex items-center space-x-2 px-4 py-2 rounded-l-full border border-darkBorder bg-darkCard transition-all group">
+                <div id="wizard-dot-icon-1" class="h-6 w-6 rounded-full bg-gradient-to-tr from-mediumPurple to-softBlue text-white flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-neon/20 shadow-sm">1</div>
+                <span class="text-xs font-semibold text-white whitespace-nowrap hidden sm:inline">Choose Data</span>
+              </button>
+              <div class="w-8 h-px bg-darkBorder flex-shrink-0"></div>
+              <!-- Step 2 -->
+              <button onclick="wizardGoBack(2)" id="wizard-dot-2" class="flex items-center space-x-2 px-4 py-2 border border-darkBorder bg-darkCard transition-all group">
+                <div id="wizard-dot-icon-2" class="h-6 w-6 rounded-full bg-black border border-darkBorder text-gray-500 flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
+                <span class="text-xs font-semibold text-gray-500 whitespace-nowrap hidden sm:inline">Describe Your Org</span>
+              </button>
+              <div class="w-8 h-px bg-darkBorder flex-shrink-0"></div>
+              <!-- Step 3 -->
+              <div id="wizard-dot-3" class="flex items-center space-x-2 px-4 py-2 rounded-r-full border border-darkBorder bg-darkCard">
+                <div id="wizard-dot-icon-3" class="h-6 w-6 rounded-full bg-black border border-darkBorder text-gray-500 flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
+                <span class="text-xs font-semibold text-gray-500 whitespace-nowrap hidden sm:inline">Generate Dashboard</span>
+              </div>
+            </div>
+
+            <!-- ════════════════════════════════════════ -->
+            <!--  WIZARD STEP 1 — CHOOSE DATA SOURCE     -->
+            <!-- ════════════════════════════════════════ -->
+            <div id="wizard-step-1" class="flex flex-col flex-grow space-y-6">
+              <div class="text-center mb-2">
+                <h3 class="font-outfit font-bold text-white text-xl">How would you like to input your data?</h3>
+                <p class="text-sm text-gray-500 mt-1">Choose one method to get started</p>
+              </div>
+
+              <!-- 3 Option Cards -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Card: Screenshot -->
+                <button id="card-screenshot" onclick="wizardSelectDataSource('screenshot')"
+                  class="wizard-card group glass-panel rounded-2xl border-2 border-darkBorder p-6 flex flex-col items-center text-center space-y-3 hover:border-primary/50 transition-all duration-200 relative overflow-hidden cursor-pointer">
+                  <div id="card-screenshot-check" class="hidden absolute top-3 right-3 h-5 w-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                    <i data-lucide="check" class="h-3 w-3 text-white"></i>
+                  </div>
+                  <div class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-royalBlue/20 to-softBlue/20 border border-softBlue/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                    <i data-lucide="image" class="h-7 w-7 text-softBlue"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-outfit font-bold text-white text-sm">Upload Screenshot</h4>
+                    <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Power BI, Excel, Tableau or any dashboard image</p>
+                  </div>
+                  <div class="flex flex-wrap gap-1 justify-center mt-1">
+                    <span class="text-[9px] px-1.5 py-0.5 bg-softBlue/10 border border-softBlue/20 text-softBlue rounded-full">Power BI</span>
+                    <span class="text-[9px] px-1.5 py-0.5 bg-royalBlue/10 border border-royalBlue/20 text-royalBlue rounded-full">Excel</span>
+                    <span class="text-[9px] px-1.5 py-0.5 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-full">Tableau</span>
+                  </div>
+                  <span class="text-[10px] font-semibold text-softBlue group-hover:underline mt-1">Select →</span>
+                </button>
+
+                <!-- Card: CSV / Excel -->
+                <button id="card-csv" onclick="wizardSelectDataSource('csv')"
+                  class="wizard-card group glass-panel rounded-2xl border-2 border-darkBorder p-6 flex flex-col items-center text-center space-y-3 hover:border-primary/50 transition-all duration-200 relative overflow-hidden cursor-pointer">
+                  <div id="card-csv-check" class="hidden absolute top-3 right-3 h-5 w-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                    <i data-lucide="check" class="h-3 w-3 text-white"></i>
+                  </div>
+                  <div class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                    <i data-lucide="file-spreadsheet" class="h-7 w-7 text-emerald-400"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-outfit font-bold text-white text-sm">Upload CSV / Excel</h4>
+                    <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Structured data file with your metrics</p>
+                  </div>
+                  <div class="flex flex-wrap gap-1 justify-center mt-1">
+                    <span class="text-[9px] px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full">.csv</span>
+                    <span class="text-[9px] px-1.5 py-0.5 bg-teal-500/10 border border-teal-500/20 text-teal-400 rounded-full">.xlsx</span>
+                  </div>
+                  <span class="text-[10px] font-semibold text-emerald-400 group-hover:underline mt-1">Select →</span>
+                </button>
+
+                <!-- Card: Demo Dataset -->
+                <button id="card-demo" onclick="wizardSelectDataSource('demo')"
+                  class="wizard-card group glass-panel rounded-2xl border-2 border-darkBorder p-6 flex flex-col items-center text-center space-y-3 hover:border-primary/50 transition-all duration-200 relative overflow-hidden cursor-pointer">
+                  <div id="card-demo-check" class="hidden absolute top-3 right-3 h-5 w-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                    <i data-lucide="check" class="h-3 w-3 text-white"></i>
+                  </div>
+                  <div class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-amber-500/20 to-orange-500/20 border border-amber-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                    <i data-lucide="sparkles" class="h-7 w-7 text-amber-400"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-outfit font-bold text-white text-sm">Use Demo Dataset</h4>
+                    <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Try with sample data instantly</p>
+                  </div>
+                  <div class="flex flex-wrap gap-1 justify-center mt-1">
+                    <span class="text-[9px] px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-full">Blinkit</span>
+                    <span class="text-[9px] px-1.5 py-0.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-full">12 months</span>
+                  </div>
+                  <span class="text-[10px] font-semibold text-amber-400 group-hover:underline mt-1">Select →</span>
+                </button>
+              </div>
+
+              <!-- ── Sub-panel: Screenshot upload zone (shown when screenshot selected) ── -->
+              <div id="sub-screenshot" class="hidden glass-panel rounded-2xl border border-darkBorder/60 p-5 space-y-3 animate-fade-in">
+                <p class="text-xs font-semibold text-white">Drop or choose your screenshot</p>
+                <!-- Vision unavailable error card -->
+                <div id="vision-unavailable-card" class="hidden rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-2">
+                  <div class="flex items-center space-x-2">
+                    <i data-lucide="alert-triangle" class="h-4 w-4 text-amber-400 flex-shrink-0"></i>
+                    <p class="text-sm font-bold text-amber-300">Vision Extraction Unavailable</p>
+                  </div>
+                  <p class="text-xs text-amber-500">Gemini API key is not configured on the server.</p>
+                  <div class="text-[11px] text-amber-500 space-y-0.5 pl-1">
+                    <p>1. Get a free key at <span class="font-semibold text-amber-300">aistudio.google.com</span></p>
+                    <p>2. Add <code class="bg-black/40 px-1 rounded">GEMINI_API_KEY=your_key</code> to your <code class="bg-black/40 px-1 rounded">.env</code></p>
+                    <p>3. Restart the server</p>
+                  </div>
+                  <button onclick="wizardSelectDataSource('csv')" class="mt-2 text-xs font-semibold text-softBlue hover:underline flex items-center space-x-1">
+                    <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i>
+                    <span>Switch to CSV Upload instead →</span>
+                  </button>
+                </div>
+                <!-- Dropzone (shown if Gemini available) -->
+                <div id="wiz-screenshot-dropzone"
+                  ondrop="wizHandleScreenshotDrop(event)"
+                  ondragover="event.preventDefault(); this.classList.add('border-softBlue/60','bg-softBlue/5')"
+                  ondragleave="this.classList.remove('border-softBlue/60','bg-softBlue/5')"
+                  onclick="document.getElementById('wiz-screenshot-input').click()"
+                  class="border-2 border-dashed border-darkBorder rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-200 hover:border-softBlue/40 hover:bg-softBlue/5 group">
+                  <input type="file" id="wiz-screenshot-input" class="hidden" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf" onchange="wizHandleScreenshotSelect(event)" />
+                  <div class="h-12 w-12 rounded-full bg-darkBorder/40 border border-darkBorder flex items-center justify-center group-hover:border-softBlue/40 transition-colors">
+                    <i data-lucide="upload-cloud" class="h-6 w-6 text-gray-400 group-hover:text-softBlue transition-colors"></i>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-sm font-semibold text-gray-300">Drop your image or PDF here</p>
+                    <p class="text-xs text-gray-500 mt-1">PNG, JPG, WEBP, PDF • Max 10MB</p>
+                  </div>
+                </div>
+                <!-- File preview after upload -->
+                <div id="wiz-screenshot-preview" class="hidden flex items-center space-x-3 p-3 bg-black/60 border border-darkBorder rounded-xl">
+                  <div class="h-12 w-16 rounded-lg overflow-hidden border border-darkBorder flex-shrink-0 bg-darkBorder/40">
+                    <img id="wiz-screenshot-thumb" class="h-full w-full object-cover" src="" alt="Preview" />
+                  </div>
+                  <div class="flex-grow overflow-hidden">
+                    <p id="wiz-screenshot-name" class="text-xs font-semibold text-gray-200 truncate">file.png</p>
+                    <div id="wiz-screenshot-status" class="text-[10px] text-softBlue mt-0.5 flex items-center space-x-1">
+                      <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                      <span class="text-emerald-400">Image ready</span>
+                    </div>
+                  </div>
+                  <button onclick="wizClearScreenshot()" class="p-1.5 rounded-lg hover:bg-darkBorder/40 text-gray-500 hover:text-white transition-colors flex-shrink-0">
+                    <i data-lucide="x" class="h-3.5 w-3.5"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ── Sub-panel: CSV upload (shown when csv selected) ── -->
+              <div id="sub-csv" class="hidden glass-panel rounded-2xl border border-darkBorder/60 p-5 space-y-3 animate-fade-in">
+                <p class="text-xs font-semibold text-white">Upload your CSV or Excel file</p>
+                <div onclick="document.getElementById('wiz-csv-input').click()"
+                  class="border-2 border-dashed border-darkBorder rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-200 hover:border-emerald-500/40 hover:bg-emerald-500/5 group">
+                  <input type="file" id="wiz-csv-input" class="hidden" accept=".csv,.xlsx,.xls" onchange="wizHandleCsvSelect(event)" />
+                  <div class="h-12 w-12 rounded-full bg-darkBorder/40 border border-darkBorder flex items-center justify-center group-hover:border-emerald-500/40 transition-colors">
+                    <i data-lucide="file-spreadsheet" class="h-6 w-6 text-gray-400 group-hover:text-emerald-400 transition-colors"></i>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-sm font-semibold text-gray-300">Click to choose your file</p>
+                    <p class="text-xs text-gray-500 mt-1">CSV, XLSX, XLS</p>
+                  </div>
+                </div>
+                <!-- CSV preview -->
+                <div id="wiz-csv-preview" class="hidden flex items-center space-x-3 p-3 bg-black/60 border border-darkBorder rounded-xl">
+                  <div class="h-10 w-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="file-spreadsheet" class="h-5 w-5 text-emerald-400"></i>
+                  </div>
+                  <div class="flex-grow overflow-hidden">
+                    <p id="wiz-csv-name" class="text-xs font-semibold text-gray-200 truncate">file.csv</p>
+                    <p id="wiz-csv-meta" class="text-[10px] text-emerald-400 mt-0.5">File loaded</p>
+                  </div>
+                  <button onclick="wizClearCsv()" class="p-1.5 rounded-lg hover:bg-darkBorder/40 text-gray-500 hover:text-white transition-colors flex-shrink-0">
+                    <i data-lucide="x" class="h-3.5 w-3.5"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ── Sub-panel: Demo dataset (shown when demo selected) ── -->
+              <div id="sub-demo" class="hidden glass-panel rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 animate-fade-in">
+                <div class="flex items-center space-x-3">
+                  <div class="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="check-circle" class="h-5 w-5 text-emerald-400"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-emerald-300">Demo dataset loaded</p>
+                    <p class="text-[11px] text-emerald-600 mt-0.5">Blinkit Quick Commerce — 12 months of departmental data</p>
+                  </div>
+                </div>
+                <div class="mt-3 grid grid-cols-3 gap-2 text-xs">
+                  <div class="bg-black/40 rounded-lg p-2 text-center">
+                    <p class="text-emerald-400 font-bold">12</p>
+                    <p class="text-gray-500 text-[10px]">Months</p>
+                  </div>
+                  <div class="bg-black/40 rounded-lg p-2 text-center">
+                    <p class="text-emerald-400 font-bold">5</p>
+                    <p class="text-gray-500 text-[10px]">Departments</p>
+                  </div>
+                  <div class="bg-black/40 rounded-lg p-2 text-center">
+                    <p class="text-emerald-400 font-bold">INR</p>
+                    <p class="text-gray-500 text-[10px]">Currency</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── Step 1 Footer: Next button ── -->
+              <div class="flex justify-end pt-4 mt-auto">
+                <button id="wizard-next-btn" onclick="wizardNext()" disabled
+                  class="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-mediumPurple to-royalBlue text-white font-bold text-sm rounded-xl transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:shadow-neon/20 hover:shadow-lg">
+                  <span>Next: Describe Your Organization</span>
+                  <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                </button>
+              </div>
+            </div><!-- /wizard-step-1 -->
+
+            <!-- ════════════════════════════════════════════ -->
+            <!--  WIZARD STEP 2 — DESCRIBE YOUR ORG (CHAT)  -->
+            <!-- ════════════════════════════════════════════ -->
+            <div id="wizard-step-2" class="hidden flex flex-col flex-grow space-y-4">
+              <!-- Back button + title -->
+              <div class="flex items-center space-x-4">
+                <button onclick="wizardGoBack(1)" class="flex items-center space-x-1.5 px-3 py-2 rounded-xl border border-darkBorder hover:bg-darkBorder/40 text-gray-400 hover:text-white transition-all text-xs font-semibold">
+                  <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                  <span>Back</span>
+                </button>
+                <div>
+                  <h3 class="font-outfit font-bold text-white text-lg">Tell us about your organization</h3>
+                  <p class="text-xs text-gray-500">Our AI will customize the dashboard to your industry and goals</p>
+                </div>
+              </div>
+
+              <!-- Chat + Profile sidebar layout -->
+              <div class="flex gap-4 flex-grow min-h-0" style="height: calc(100vh - 360px);">
+                <!-- Chat column (70%) -->
+                <div class="flex flex-col flex-grow min-h-0 space-y-3">
+                  <div id="chat-messages" class="flex-grow overflow-y-auto px-1 space-y-4 min-h-0 pr-2" style="scrollbar-width: thin;"></div>
+
+                  <!-- Chat Input -->
+                  <div class="bg-darkCard border border-darkBorder rounded-2xl p-3 flex-shrink-0 glow-border">
+                    <div id="chat-input-text-container" class="flex space-x-3">
+                      <input type="text" id="chat-input-text" placeholder="Type your answer..."
+                        onkeydown="if(event.key==='Enter') sendChatInput()"
+                        class="flex-1 bg-black border border-darkBorder rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-softBlue/60 text-white placeholder-gray-600" />
+                      <button onclick="sendChatInput()" class="p-3 bg-mediumPurple rounded-xl text-white hover:opacity-90 transition-opacity shadow-md">
+                        <i data-lucide="send" class="h-5 w-5"></i>
+                      </button>
+                    </div>
+                    <div id="chat-input-options-container" class="hidden flex flex-wrap gap-2 mt-3">
+                      <!-- Quick-answer buttons rendered dynamically -->
+                    </div>
+                  </div>
+
+                  <!-- Quick-form shortcut (collapsible) -->
+                  <div class="flex-shrink-0">
+                    <button onclick="toggleQuickForm()" class="text-[11px] text-gray-500 hover:text-gray-300 transition-colors flex items-center space-x-1 w-full justify-center">
+                      <i data-lucide="chevron-down" id="quick-form-chevron" class="h-3.5 w-3.5"></i>
+                      <span>Already know your details? Fill the quick form instead ↓</span>
+                    </button>
+                    <div id="quick-form-panel" class="hidden mt-3 glass-panel rounded-xl border border-darkBorder p-4 grid grid-cols-2 gap-3 animate-fade-in">
+                      <div>
+                        <label class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider block mb-1">Organization Name</label>
+                        <input type="text" id="quick-org-name" placeholder="e.g. Blinkit" class="w-full bg-black border border-darkBorder rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-softBlue/60" />
+                      </div>
+                      <div>
+                        <label class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider block mb-1">Industry</label>
+                        <select id="quick-industry" class="w-full bg-black border border-darkBorder rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-softBlue/60">
+                          <option value="">Select industry...</option>
+                          <option>Retail / E-commerce</option>
+                          <option>SaaS Technology</option>
+                          <option>Healthcare</option>
+                          <option>Manufacturing</option>
+                          <option>Entertainment</option>
+                          <option>Real Estate</option>
+                          <option>Logistics &amp; Supply Chain</option>
+                          <option>Energy &amp; Utilities</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider block mb-1">Company Size</label>
+                        <select id="quick-size" class="w-full bg-black border border-darkBorder rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-softBlue/60">
+                          <option value="">Select size...</option>
+                          <option>Small (&lt;50 employees)</option>
+                          <option>Medium (50-250 employees)</option>
+                          <option>Large (250+ employees)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider block mb-1">Primary Goals / KPIs</label>
+                        <input type="text" id="quick-goals" placeholder="e.g. sales growth, churn reduction" class="w-full bg-black border border-darkBorder rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-softBlue/60" />
+                      </div>
+                      <div class="col-span-2 flex justify-end">
+                        <button onclick="submitQuickForm()" class="px-4 py-2 bg-gradient-to-r from-mediumPurple to-royalBlue text-white text-xs font-bold rounded-xl hover:opacity-90 transition-opacity">
+                          Apply →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Profile sidebar (30%) -->
+                <div class="hidden md:flex flex-col w-72 flex-shrink-0 space-y-3">
+                  <div class="glass-panel rounded-2xl border border-darkBorder p-4 flex flex-col space-y-3">
+                    <div class="flex items-center justify-between">
+                      <p class="text-xs font-bold text-gray-300 font-outfit">Your Profile</p>
+                      <div id="profile-complete-badge" class="hidden text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">✅ Complete</div>
+                    </div>
+                    <div class="h-px bg-darkBorder"></div>
+                    <div class="space-y-3 text-xs">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-base">🏢</span>
+                        <div class="flex-grow overflow-hidden">
+                          <p class="text-[10px] text-gray-500 uppercase tracking-wider">Name</p>
+                          <p id="profile-card-name" class="text-gray-400 font-semibold truncate italic">Waiting...</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <span class="text-base">🏭</span>
+                        <div class="flex-grow overflow-hidden">
+                          <p class="text-[10px] text-gray-500 uppercase tracking-wider">Industry</p>
+                          <p id="profile-card-industry" class="text-gray-400 font-semibold truncate italic">Waiting...</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <span class="text-base">👥</span>
+                        <div class="flex-grow overflow-hidden">
+                          <p class="text-[10px] text-gray-500 uppercase tracking-wider">Size</p>
+                          <p id="profile-card-size" class="text-gray-400 font-semibold truncate italic">Waiting...</p>
+                        </div>
+                      </div>
+                      <div class="flex items-start space-x-2">
+                        <span class="text-base mt-0.5">🎯</span>
+                        <div class="flex-grow overflow-hidden">
+                          <p class="text-[10px] text-gray-500 uppercase tracking-wider">Goals</p>
+                          <p id="profile-card-goals" class="text-gray-400 font-semibold line-clamp-3 italic">Waiting...</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Data source summary -->
+                  <div class="glass-panel rounded-2xl border border-darkBorder p-4 space-y-2">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Data Source</p>
+                    <div id="profile-datasource-info" class="flex items-center space-x-2 text-xs">
+                      <i data-lucide="check-circle" class="h-4 w-4 text-emerald-400 flex-shrink-0"></i>
+                      <span id="profile-datasource-label" class="text-gray-300 font-semibold">—</span>
+                    </div>
+                  </div>
+
+                  <!-- Generate button (appears when profile complete) -->
+                  <div id="wizard-generate-wrapper" class="hidden mt-auto">
+                    <button onclick="executeLocalAnalysis()" id="btn-wizard-generate"
+                      class="w-full flex items-center justify-center space-x-2 py-3.5 px-5 bg-gradient-to-r from-mediumPurple via-royalBlue to-softBlue/80 text-white font-bold text-sm rounded-2xl hover:shadow-neon/20 hover:shadow-lg transition-all duration-300 animate-pulse-subtle">
+                      <i data-lucide="sparkles" class="h-5 w-5"></i>
+                      <span>Generate My Dashboard →</span>
+                    </button>
+                    <p class="text-[10px] text-gray-600 text-center mt-2">This usually takes 3–5 seconds</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mobile: generate button (below chat on small screens) -->
+              <div id="wizard-generate-wrapper-mobile" class="hidden md:hidden flex-shrink-0">
+                <button onclick="executeLocalAnalysis()"
+                  class="w-full flex items-center justify-center space-x-2 py-3 px-5 bg-gradient-to-r from-mediumPurple to-royalBlue text-white font-bold text-sm rounded-2xl transition-all duration-200">
+                  <i data-lucide="sparkles" class="h-4 w-4"></i>
+                  <span>Generate My Dashboard →</span>
+                </button>
+              </div>
+            </div><!-- /wizard-step-2 -->
+
+          </div><!-- /panel-new-analysis -->
+
+
+
+          <!-- PANEL: PROCESSING LOADER -->
+          <div id="panel-processing" class="hidden h-[70vh] flex flex-col justify-center items-center">
+            <div class="glass-panel max-w-lg w-full rounded-2xl p-8 border border-darkBorder text-center shadow-2xl relative glow-border">
+              <div class="relative h-20 w-20 mx-auto mb-8 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full border-4 border-darkBorder"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-t-softBlue border-r-mediumPurple animate-spin"></div>
+                <i data-lucide="refresh-cw" class="h-8 w-8 text-softBlue animate-pulse"></i>
+              </div>
+              <h2 class="text-2xl font-extrabold font-outfit text-white tracking-wide">Executing Analytics Pipeline</h2>
+              <p class="text-gray-400 text-xs mt-2 max-w-sm mx-auto">
+                Please wait while we crunch numbers, compute ARIMA models, run anomaly checks, and draft strategic insights.
+              </p>
+              
+              <div class="mt-8 space-y-4 text-left max-w-xs mx-auto">
+                <div id="proc-step-0" class="flex items-center space-x-3 opacity-30">
+                  <i data-lucide="database" class="h-5 w-5 text-softBlue"></i>
+                  <span class="text-xs font-semibold">Ingesting historical database...</span>
+                </div>
+                <div id="proc-step-1" class="flex items-center space-x-3 opacity-30">
+                  <i data-lucide="bar-chart-2" class="h-5 w-5 text-mediumPurple"></i>
+                  <span class="text-xs font-semibold">Running statistical z-score audits...</span>
+                </div>
+                <div id="proc-step-2" class="flex items-center space-x-3 opacity-30">
+                  <i data-lucide="trending-up" class="h-5 w-5 text-softBlue"></i>
+                  <span class="text-xs font-semibold">Fitting Holt-Winters forecasting models...</span>
+                </div>
+                <div id="proc-step-3" class="flex items-center space-x-3 opacity-30">
+                  <i data-lucide="sparkles" class="h-5 w-5 text-softBlue"></i>
+                  <span class="text-xs font-semibold">Writing report details with Gemini...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- PANEL: MAIN DASHBOARD -->
+          <div id="panel-dashboard" class="hidden space-y-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-darkBorder/40 pb-6">
+              <div>
+                <span id="dash-report-id" class="text-xs font-bold text-softBlue uppercase tracking-wider font-mono">Report ID: #0</span>
+                <div class="flex items-center space-x-3 mt-1">
+                  <h2 id="dash-org-name" class="text-3xl font-extrabold font-outfit text-white tracking-tight">Company Dashboard</h2>
+                  <button id="btn-edit-mode" onclick="toggleEditMode()" class="px-3 py-1 bg-darkCard border border-darkBorder hover:border-softBlue/40 rounded-lg text-xs font-semibold text-gray-400 hover:text-white flex items-center space-x-1.5 transition-all">
+                    <i data-lucide="edit-3" class="h-3.5 w-3.5"></i>
+                    <span id="btn-edit-text">Edit Insights</span>
+                  </button>
+                  <button id="btn-save-edits" onclick="saveDashboardEdits()" class="hidden px-3.5 py-1 bg-gradient-to-r from-mediumPurple to-royalBlue text-white rounded-lg text-xs font-bold shadow-md flex items-center space-x-1.5 transition-all">
+                    <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                    <span>Save Changes</span>
+                  </button>
+                </div>
+                <p id="dash-meta" class="text-sm text-gray-500 mt-1">Industry Context: Retail • Size: Medium</p>
+              </div>
+                            <div class="flex flex-wrap items-center gap-4 bg-darkCard/50 border border-darkBorder p-2 rounded-2xl">
+                <!-- Theme Picker -->
+                <div class="flex items-center space-x-2 bg-black/40 border border-darkBorder/60 px-3 py-1.5 rounded-xl">
+                  <span class="text-[9px] uppercase font-bold text-gray-500 tracking-wider">Theme:</span>
+                  <div class="flex items-center space-x-1" id="workspace-theme-picker">
+                    <button onclick="applyTheme('midnight')" class="w-3.5 h-3.5 rounded-full bg-[#7C6FFF] border border-transparent focus:outline-none" title="Midnight"></button>
+                    <button onclick="applyTheme('blinkit')" class="w-3.5 h-3.5 rounded-full bg-[#F5C518] border border-transparent focus:outline-none" title="Blinkit Gold"></button>
+                    <button onclick="applyTheme('ocean')" class="w-3.5 h-3.5 rounded-full bg-[#2563EB] border border-transparent focus:outline-none" title="Ocean Blue"></button>
+                    <button onclick="applyTheme('forest')" class="w-3.5 h-3.5 rounded-full bg-[#16A34A] border border-transparent focus:outline-none" title="Forest Green"></button>
+                    <button onclick="applyTheme('rose')" class="w-3.5 h-3.5 rounded-full bg-[#E11D48] border border-transparent focus:outline-none" title="Rose Executive"></button>
+                    <button onclick="applyTheme('slate')" class="w-3.5 h-3.5 rounded-full bg-[#475569] border border-transparent focus:outline-none" title="Slate Pro"></button>
+                    <button onclick="applyTheme('amber')" class="w-3.5 h-3.5 rounded-full bg-[#D97706] border border-transparent focus:outline-none" title="Amber Ops"></button>
+                    <button onclick="applyTheme('purple')" class="w-3.5 h-3.5 rounded-full bg-[#8B5CF6] border border-transparent focus:outline-none" title="Deep Purple"></button>
+                  </div>
+                  <div class="h-4 w-[1px] bg-darkBorder/60"></div>
+                  <div class="flex items-center space-x-1 relative">
+                    <input type="color" id="custom-theme-color" onchange="handleCustomColorInput(this.value)" class="w-4 h-4 rounded-full border-0 cursor-pointer bg-transparent focus:outline-none" title="Custom Hex Color" />
+                    <button onclick="toggleLightDarkVariant()" class="p-1 rounded-lg hover:bg-darkBorder/40 text-gray-400 hover:text-white transition-colors" title="Toggle Light/Dark">
+                      <i data-lucide="sun-moon" class="h-3.5 w-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <button id="btn-ask-ai" onclick="openDashboardChatDrawer()" class="flex items-center space-x-2 py-2 px-4 bg-darkCard border border-darkBorder hover:border-softBlue/50 text-gray-300 text-xs font-bold rounded-xl transition-all">
+                    <i data-lucide="sparkles" class="h-4 w-4 text-softBlue animate-pulse"></i>
+                    <span>Ask AI</span>
+                  </button>
+                  <button id="btn-report-preview" onclick="openPDFPreviewDrawer()" class="flex items-center space-x-2 py-2 px-4 bg-darkCard border border-darkBorder hover:border-primary/50 text-gray-300 text-xs font-bold rounded-xl transition-all">
+                    <i data-lucide="eye" class="h-4 w-4 text-primary"></i>
+                    <span>Preview Report</span>
+                  </button>
+                  <button id="btn-report-share" onclick="openShareModal()" class="flex items-center justify-center p-2.5 bg-darkCard border border-darkBorder hover:border-primary/50 text-gray-400 hover:text-white rounded-xl transition-all" title="Share Dashboard">
+                    <i data-lucide="share-2" class="h-4 w-4"></i>
+                  </button>
+                  <button onclick="downloadReportAsPDF()" class="flex items-center space-x-2 py-2 px-5 bg-gradient-to-r from-mediumPurple to-royalBlue text-white text-xs font-bold rounded-xl hover:from-mediumPurple/90 hover:to-royalBlue/90 transition-all duration-200">
+                    <i data-lucide="file-down" class="h-4 w-4"></i>
+                    <span>Download PDF</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            
+            <!-- Slicers / Filters Bar -->
+            <div id="dashboard-slicers-bar" class="glass-panel p-4 rounded-xl border border-darkBorder/50 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div class="flex flex-wrap items-center gap-4 text-xs">
+                <div class="flex items-center space-x-2">
+                  <span class="text-gray-400 font-semibold uppercase tracking-wider text-[10px]">Date Range:</span>
+                  <select id="filter-date" onchange="applySlicers()" class="bg-black border border-darkBorder rounded-lg px-2.5 py-1.5 text-gray-200 focus:outline-none focus:border-primary">
+                    <option value="all">All Dates</option>
+                    <option value="last-6">Last 6 Months</option>
+                    <option value="last-3">Last 3 Months</option>
+                  </select>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <span class="text-gray-400 font-semibold uppercase tracking-wider text-[10px]">Department:</span>
+                  <select id="filter-dept" onchange="applySlicers()" class="bg-black border border-darkBorder rounded-lg px-2.5 py-1.5 text-gray-200 focus:outline-none focus:border-primary">
+                    <option value="all">All Departments</option>
+                  </select>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <span class="text-gray-400 font-semibold uppercase tracking-wider text-[10px]">Primary Metric:</span>
+                  <select id="filter-metric" onchange="applySlicers()" class="bg-black border border-darkBorder rounded-lg px-2.5 py-1.5 text-gray-200 focus:outline-none focus:border-primary">
+                    <option value="revenue">Revenue</option>
+                    <option value="expenses">Expenses</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex items-center space-x-3">
+                <button onclick="clearSlicers()" class="text-xs px-3 py-1.5 bg-darkBorder/40 border border-darkBorder rounded-lg text-gray-400 hover:text-white transition-colors">
+                  Clear Filters
+                </button>
+                <button onclick="applySlicers()" class="text-xs px-3 py-1.5 bg-primary/20 border border-primary/40 rounded-lg text-primary hover:bg-primary/30 transition-colors">
+                  Refresh Data
+                </button>
+              </div>
+            </div>
+
+
+            <!-- KPIs Row -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <!-- KPI Card 1 -->
+              <div class="glass-panel rounded-2xl p-6 relative overflow-hidden glow-border">
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-softBlue/40 to-transparent"></div>
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Revenue (Analyzed Run)</span>
+                    <span id="kpi-rev" class="text-3xl font-extrabold font-outfit text-white block mt-2 tracking-tight">$0</span>
+                    <input type="text" id="edit-kpi-rev" class="hidden mt-2 bg-black border border-darkBorder rounded px-2 py-1 text-sm text-white w-full" />
+                  </div>
+                  <div class="h-10 w-10 rounded-xl bg-darkBorder/40 border border-darkBorder flex items-center justify-center text-softBlue">
+                    <i data-lucide="dollar-sign" class="h-5 w-5"></i>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between mt-4 pt-4 border-t border-darkBorder/50">
+                  <span class="text-xs text-gray-500 truncate">Total annual run-rate</span>
+                  <div class="w-16 h-6">
+                    <canvas id="sparkline-rev"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <!-- KPI Card 2 -->
+              <div class="glass-panel rounded-2xl p-6 relative overflow-hidden glow-border">
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-softBlue/40 to-transparent"></div>
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">YoY Expansion</span>
+                    <span id="kpi-growth" class="text-3xl font-extrabold font-outfit text-white block mt-2 tracking-tight">0%</span>
+                    <input type="text" id="edit-kpi-growth" class="hidden mt-2 bg-black border border-darkBorder rounded px-2 py-1 text-sm text-white w-full" />
+                  </div>
+                  <div class="h-10 w-10 rounded-xl bg-darkBorder/40 border border-darkBorder flex items-center justify-center text-softBlue">
+                    <i data-lucide="trending-up" class="h-5 w-5"></i>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between mt-4 pt-4 border-t border-darkBorder/50">
+                  <div class="flex items-center space-x-1">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border text-emerald-400 bg-emerald-500/10 border-emerald-500/20" id="kpi-growth-badge">+0%</span>
+                    <span class="text-xs text-gray-500 truncate">MoM</span>
+                  </div>
+                  <div class="w-16 h-6">
+                    <canvas id="sparkline-growth"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <!-- KPI Card 3 -->
+              <div class="glass-panel rounded-2xl p-6 relative overflow-hidden glow-border">
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-softBlue/40 to-transparent"></div>
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Efficiency Score</span>
+                    <span id="kpi-eff" class="text-3xl font-extrabold font-outfit text-white block mt-2 tracking-tight">0/100</span>
+                    <input type="text" id="edit-kpi-eff" class="hidden mt-2 bg-black border border-darkBorder rounded px-2 py-1 text-sm text-white w-full" />
+                  </div>
+                  <div class="h-10 w-10 rounded-xl bg-darkBorder/40 border border-darkBorder flex items-center justify-center text-softBlue">
+                    <i data-lucide="activity" class="h-5 w-5"></i>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between mt-4 pt-4 border-t border-darkBorder/50">
+                  <span class="text-xs text-gray-500 truncate">Budget utility index</span>
+                  <div class="w-16 h-6">
+                    <canvas id="sparkline-eff"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <!-- KPI Card 4 -->
+              <div class="glass-panel rounded-2xl p-6 relative overflow-hidden glow-border">
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-softBlue/40 to-transparent"></div>
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Risk Index</span>
+                    <span id="kpi-risk" class="text-3xl font-extrabold font-outfit text-white block mt-2 tracking-tight">Low</span>
+                    <input type="text" id="edit-kpi-risk" class="hidden mt-2 bg-black border border-darkBorder rounded px-2 py-1 text-sm text-white w-full" />
+                  </div>
+                  <div class="h-10 w-10 rounded-xl bg-darkBorder/40 border border-darkBorder flex items-center justify-center text-softBlue">
+                    <i data-lucide="alert-triangle" class="h-5 w-5"></i>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between mt-4 pt-4 border-t border-darkBorder/50">
+                  <span class="text-xs text-gray-500 truncate">Leverage profile limit</span>
+                  <div class="w-16 h-6">
+                    <canvas id="sparkline-risk"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SWOT Matrix Quadrant (Interactive, editable) -->
+            <div class="glass-panel rounded-2xl border border-darkBorder/50 p-6 shadow-xl space-y-4">
+              <div>
+                <h3 class="font-outfit font-bold text-white text-lg flex items-center space-x-2">
+                  <i data-lucide="award" class="h-5 w-5 text-softBlue animate-pulse"></i>
+                  <span>SWOT Matrix Audit</span>
+                </h3>
+                <p class="text-xs text-gray-500">Interactive strengths, weaknesses, opportunities, and threats parameters (Double click values to edit)</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Strengths -->
+                <div class="border border-darkBorder bg-darkCard/40 rounded-2xl p-5 border-l-4 border-emerald-500">
+                  <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest block font-mono">Strengths (Internal)</span>
+                  <div id="swot-strengths" contenteditable="false" class="text-xs text-gray-400 mt-2 space-y-2 focus:outline-none">
+                    <!-- Loaded dynamically -->
+                  </div>
+                </div>
+                <!-- Weaknesses -->
+                <div class="border border-darkBorder bg-darkCard/40 rounded-2xl p-5 border-l-4 border-rose-500">
+                  <span class="text-xs font-bold text-rose-400 uppercase tracking-widest block font-mono">Weaknesses (Internal)</span>
+                  <div id="swot-weaknesses" contenteditable="false" class="text-xs text-gray-400 mt-2 space-y-2 focus:outline-none">
+                    <!-- Loaded dynamically -->
+                  </div>
+                </div>
+                <!-- Opportunities -->
+                <div class="border border-darkBorder bg-darkCard/40 rounded-2xl p-5 border-l-4 border-softBlue">
+                  <span class="text-xs font-bold text-softBlue uppercase tracking-widest block font-mono">Opportunities (External)</span>
+                  <div id="swot-opportunities" contenteditable="false" class="text-xs text-gray-400 mt-2 space-y-2 focus:outline-none">
+                    <!-- Loaded dynamically -->
+                  </div>
+                </div>
+                <!-- Threats -->
+                <div class="border border-darkBorder bg-darkCard/40 rounded-2xl p-5 border-l-4 border-amber-500">
+                  <span class="text-xs font-bold text-amber-500 uppercase tracking-widest block font-mono">Threats (External)</span>
+                  <div id="swot-threats" contenteditable="false" class="text-xs text-gray-400 mt-2 space-y-2 focus:outline-none">
+                    <!-- Loaded dynamically -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts and Strategic text -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              <!-- Left side: visual tab graphs -->
+              <div class="lg:col-span-2 space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <!-- Chart Card 1: Trend & Forecast -->
+                  <div class="glass-panel rounded-2xl border border-darkBorder/50 p-5 shadow-xl relative flex flex-col justify-between">
+                    <div class="flex justify-between items-center border-b border-darkBorder/40 pb-3 mb-3">
+                      <div>
+                        <h3 class="font-outfit font-bold text-white text-sm">Trend & Forecast</h3>
+                        <p class="text-[9px] text-gray-500">6-Month Trend & ARIMA Projection</p>
+                      </div>
+                      <button onclick="exportChartAsPNG('chart-trend')" class="p-1 rounded-lg border border-darkBorder hover:bg-darkBorder/40 text-gray-400 hover:text-white transition-colors" title="Export PNG">
+                        <i data-lucide="download" class="h-3.5 w-3.5"></i>
+                      </button>
+                    </div>
+                    <div class="h-56 relative">
+                      <canvas id="chart-trend"></canvas>
+                    </div>
+                  </div>
+
+                  <!-- Chart Card 2: Department Breakdown -->
+                  <div class="glass-panel rounded-2xl border border-darkBorder/50 p-5 shadow-xl relative flex flex-col justify-between">
+                    <div class="flex justify-between items-center border-b border-darkBorder/40 pb-3 mb-3">
+                      <div>
+                        <h3 class="font-outfit font-bold text-white text-sm">Departmental Breakdown</h3>
+                        <p class="text-[9px] text-gray-500">Revenue & Expenses by Department (Interactive Drill-down)</p>
+                      </div>
+                      <button onclick="exportChartAsPNG('chart-dept')" class="p-1 rounded-lg border border-darkBorder hover:bg-darkBorder/40 text-gray-400 hover:text-white transition-colors" title="Export PNG">
+                        <i data-lucide="download" class="h-3.5 w-3.5"></i>
+                      </button>
+                    </div>
+                    <div class="h-56 relative">
+                      <canvas id="chart-dept"></canvas>
+                    </div>
+                  </div>
+
+                  <!-- Chart Card 3: Resource Allocation -->
+                  <div class="glass-panel rounded-2xl border border-darkBorder/50 p-5 shadow-xl relative flex flex-col justify-between">
+                    <div class="flex justify-between items-center border-b border-darkBorder/40 pb-3 mb-3">
+                      <div>
+                        <h3 class="font-outfit font-bold text-white text-sm">Resource Allocation</h3>
+                        <p class="text-[9px] text-gray-500">Share of Total Organizational Assets</p>
+                      </div>
+                      <button onclick="exportChartAsPNG('chart-alloc')" class="p-1 rounded-lg border border-darkBorder hover:bg-darkBorder/40 text-gray-400 hover:text-white transition-colors" title="Export PNG">
+                        <i data-lucide="download" class="h-3.5 w-3.5"></i>
+                      </button>
+                    </div>
+                    <div class="h-56 relative">
+                      <canvas id="chart-alloc"></canvas>
+                    </div>
+                  </div>
+
+                  <!-- Chart Card 4: Explainability / Drivers -->
+                  <div class="glass-panel rounded-2xl border border-darkBorder/50 p-5 shadow-xl relative flex flex-col justify-between">
+                    <div class="flex justify-between items-center border-b border-darkBorder/40 pb-3 mb-3">
+                      <div>
+                        <h3 class="font-outfit font-bold text-white text-sm">Feature Importance (SHAP)</h3>
+                        <p class="text-[9px] text-gray-500">Driver Impact on Organizational Metrics</p>
+                      </div>
+                      <button onclick="exportChartAsPNG('chart-explain')" class="p-1 rounded-lg border border-darkBorder hover:bg-darkBorder/40 text-gray-400 hover:text-white transition-colors" title="Export PNG">
+                        <i data-lucide="download" class="h-3.5 w-3.5"></i>
+                      </button>
+                    </div>
+                    <div class="h-56 relative">
+                      <canvas id="chart-explain"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Scenario builder / Simulator -->
+                <div class="glass-panel rounded-2xl border border-darkBorder/50 p-6 shadow-xl space-y-6 glow-border-blue">
+                  <div>
+                    <h3 class="font-outfit font-bold text-white text-lg flex items-center space-x-2">
+                      <i data-lucide="sliders" class="h-5 w-5 text-softBlue"></i>
+                      <span>Organizational What-If Simulator</span>
+                    </h3>
+                    <p class="text-xs text-gray-500">Slide strategic investments to predict revenue changes based on driver importances</p>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Slider 1 -->
+                    <div class="space-y-2">
+                      <div class="flex justify-between text-xs font-semibold text-gray-300">
+                        <span>Marketing Spend</span>
+                        <span id="sim-val-mkt" class="text-softBlue">0%</span>
+                      </div>
+                      <input type="range" id="sim-slider-mkt" min="-50" max="100" value="0" oninput="updateScenarioSimulation()" class="w-full h-1 bg-darkBorder rounded-lg appearance-none cursor-pointer accent-softBlue" />
+                      <span class="text-[10px] text-gray-500 block">Correlates directly to new traffic acquisition</span>
+                    </div>
+
+                    <!-- Slider 2 -->
+                    <div class="space-y-2">
+                      <div class="flex justify-between text-xs font-semibold text-gray-300">
+                        <span>Product / R&D Focus</span>
+                        <span id="sim-val-rd" class="text-softBlue">0%</span>
+                      </div>
+                      <input type="range" id="sim-slider-rd" min="-50" max="100" value="0" oninput="updateScenarioSimulation()" class="w-full h-1 bg-darkBorder rounded-lg appearance-none cursor-pointer accent-softBlue" />
+                      <span class="text-[10px] text-gray-500 block">Calibrates release cycle & customer retention</span>
+                    </div>
+
+                    <!-- Slider 3 -->
+                    <div class="space-y-2">
+                      <div class="flex justify-between text-xs font-semibold text-gray-300">
+                        <span>Sales Pipeline Conversion</span>
+                        <span id="sim-val-sales" class="text-softBlue">0%</span>
+                      </div>
+                      <input type="range" id="sim-slider-sales" min="-50" max="100" value="0" oninput="updateScenarioSimulation()" class="w-full h-1 bg-darkBorder rounded-lg appearance-none cursor-pointer accent-softBlue" />
+                      <span class="text-[10px] text-gray-500 block">Optimizes inbound lead conversion margins</span>
+                    </div>
+                  </div>
+
+                  <div class="bg-black/60 border border-darkBorder rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                      <span class="text-xs text-gray-500 uppercase tracking-widest font-semibold">Simulated Growth Output</span>
+                      <div class="flex items-center space-x-3 mt-1">
+                        <span id="sim-out-rev" class="text-2xl font-extrabold text-white font-outfit">$0</span>
+                        <span id="sim-out-percent" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">+0%</span>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-xs text-gray-500 uppercase tracking-widest font-semibold">Simulated ROI Ratio</span>
+                      <span id="sim-out-roi" class="text-2xl font-extrabold text-softBlue font-outfit block mt-1">1.0x</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Anomalies segment -->
+                <div class="glass-panel rounded-2xl border border-darkBorder/50 p-6 shadow-xl space-y-4">
+                  <div>
+                    <h3 class="font-outfit font-bold text-white text-lg">Ingested Data Anomalies</h3>
+                    <p class="text-xs text-gray-500">Points of significant statistical variation from seasonal rolling medians</p>
+                  </div>
+                  <div id="dash-anomalies-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Rendered via JS -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right side: Gemini report text -->
+              <div>
+                <div class="glass-panel rounded-2xl border border-darkBorder/50 p-6 shadow-xl flex flex-col h-[544px] justify-between">
+                  <div>
+                    <div class="flex justify-between items-center border-b border-darkBorder/40 pb-4 mb-4">
+                      <div>
+                        <h3 class="font-outfit font-bold text-white text-lg flex items-center space-x-2">
+                          <i data-lucide="sparkles" class="h-5 w-5 text-softBlue animate-pulse"></i>
+                          <span>Gemini Strategic Report</span>
+                        </h3>
+                        <p class="text-xs text-gray-500">AI growth analysis context</p>
+                      </div>
+                    </div>
+
+                    <!-- Inner report navigation -->
+                    <div class="flex border-b border-darkBorder mb-4 text-xs font-semibold overflow-x-auto pb-1">
+                      <button id="rep-tab-exec" onclick="switchReportTab('exec')" class="pb-1 pr-3 border-b-2 border-softBlue text-white">Executive</button>
+                      <button id="rep-tab-swot" onclick="switchReportTab('swot')" class="pb-1 px-3 border-b-2 border-transparent text-gray-500">SWOT</button>
+                      <button id="rep-tab-root" onclick="switchReportTab('root')" class="pb-1 px-3 border-b-2 border-transparent text-gray-500">Root Cause</button>
+                      <button id="rep-tab-bench" onclick="switchReportTab('bench')" class="pb-1 pl-3 border-b-2 border-transparent text-gray-500">Benchmarks</button>
+                    </div>
+
+                    <!-- Render context text -->
+                    <div id="dash-report-text-container" class="relative">
+                      <div id="dash-report-text" class="text-xs text-gray-400 leading-relaxed overflow-y-auto h-80 pr-1 space-y-3 text-justify">
+                        <!-- Rendered via JS -->
+                      </div>
+                      <textarea id="edit-report-text" class="hidden w-full h-80 bg-black border border-darkBorder rounded-xl p-3 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-softBlue/60 resize-none"></textarea>
+                    </div>
+                  </div>
+                  <div class="border-t border-darkBorder/40 pt-4 text-[10px] text-gray-500">
+                    Generated dynamically via Gemini 3.5 Flash Model.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Driver weights and recommendations -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              <!-- Drivers -->
+              <div class="glass-panel rounded-2xl border border-darkBorder/50 p-6 shadow-xl">
+                <div>
+                  <h3 class="font-outfit font-bold text-white text-lg">Statistical Explainability</h3>
+                  <p class="text-xs text-gray-500">Feature contributions to corporate output weights</p>
+                </div>
+                <div id="dash-drivers-container" class="mt-6 space-y-4">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+              <!-- Action items table -->
+              <div class="lg:col-span-2 glass-panel rounded-2xl border border-darkBorder/50 p-6 shadow-xl">
+                <div class="flex justify-between items-center mb-6">
+                  <div>
+                    <h3 class="font-outfit font-bold text-white text-lg flex items-center space-x-2">
+                      <i data-lucide="check-square" class="h-5 w-5 text-softBlue"></i>
+                      <span>Actionable Recommendations</span>
+                    </h3>
+                    <p class="text-xs text-gray-500">Top prioritized growth tactics derived from analysis</p>
+                  </div>
+                  <span class="text-xs font-mono font-bold text-softBlue bg-softBlue/10 border border-softBlue/20 px-3 py-1 rounded-lg">ROI Ordered</span>
+                </div>
+                <div id="dash-recs-container" class="space-y-4">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ═══ FEATURE 1: AI CHAT WITH REPORT ═══ -->
+          <!-- MOBILE BOTTOM SHEET CHAT (visible on small screens) -->
+          <div id="mobile-chat-sheet" class="fixed inset-x-0 bottom-0 z-40 md:hidden transform translate-y-full transition-transform duration-300 ease-in-out">
+            <div class="bg-black border-t border-darkBorder rounded-t-3xl shadow-2xl flex flex-col" style="max-height: 80vh;">
+              <!-- Handle -->
+              <div class="flex justify-center pt-3 pb-2 cursor-pointer" onclick="closeMobileChatSheet()">
+                <div class="w-10 h-1 rounded-full bg-darkBorder"></div>
+              </div>
+              <div class="px-4 pb-2 flex items-center justify-between border-b border-darkBorder">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="sparkles" class="h-4 w-4 text-softBlue animate-pulse"></i>
+                  <span class="font-outfit font-bold text-white text-sm">Ask AI about this Report</span>
+                </div>
+                <button onclick="closeMobileChatSheet()" class="p-1.5 rounded-lg text-gray-400 hover:text-white">
+                  <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                </button>
+              </div>
+              <div id="mobile-chat-messages" class="flex-grow overflow-y-auto p-4 space-y-3 min-h-0" style="max-height: 50vh;"></div>
+              <div class="p-3 border-t border-darkBorder">
+                <div class="flex space-x-2">
+                  <input type="text" id="mobile-chat-input" placeholder="Ask anything about this report..." onkeydown="if(event.key==='Enter') sendDashboardChatMessage('mobile')" class="flex-1 bg-darkCard border border-darkBorder rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-softBlue/60 text-white placeholder-gray-600" />
+                  <button onclick="sendDashboardChatMessage('mobile')" class="p-2.5 bg-mediumPurple rounded-xl text-white hover:opacity-90 transition-opacity">
+                    <i data-lucide="send" class="h-4 w-4"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DESKTOP SIDEBAR CHAT DRAWER -->
+          <div id="desktop-chat-drawer" class="hidden fixed inset-y-0 right-0 z-40 w-80 bg-black border-l border-darkBorder flex flex-col shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out">
+            <div class="p-4 border-b border-darkBorder flex items-center justify-between bg-black/80 backdrop-blur-md flex-shrink-0">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="sparkles" class="h-4 w-4 text-softBlue animate-pulse"></i>
+                <span class="font-outfit font-bold text-white text-sm">Ask AI about this Report</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="clearDashboardChat()" class="p-1.5 rounded-lg border border-darkBorder hover:bg-darkBorder/40 text-gray-400 hover:text-white transition-colors" title="Clear chat">
+                  <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                </button>
+                <button onclick="closeDashboardChatDrawer()" class="p-1.5 rounded-lg hover:bg-darkBorder/40 text-gray-400 hover:text-white transition-colors">
+                  <i data-lucide="x" class="h-4 w-4"></i>
+                </button>
+              </div>
+            </div>
+            <div id="desktop-chat-messages" class="flex-grow overflow-y-auto p-4 space-y-3 min-h-0"></div>
+            <div class="p-3 border-t border-darkBorder flex-shrink-0">
+              <div class="flex space-x-2">
+                <input type="text" id="desktop-chat-input" placeholder="Ask anything about this report..." onkeydown="if(event.key==='Enter') sendDashboardChatMessage('desktop')" class="flex-1 bg-darkCard border border-darkBorder rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-softBlue/60 text-white placeholder-gray-600" />
+                <button onclick="sendDashboardChatMessage('desktop')" class="p-2.5 bg-mediumPurple rounded-xl text-white hover:opacity-90 transition-opacity">
+                  <i data-lucide="send" class="h-4 w-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- ═══ END AI CHAT PANEL ═══ -->
+
+
+
+          <div id="panel-profile" class="hidden max-w-2xl mx-auto space-y-8">
+            <div class="border-b border-darkBorder/40 pb-6">
+              <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">My Profile</h2>
+              <p class="text-sm text-gray-500 mt-1">Manage credentials and account statistics</p>
+            </div>
+
+            <div class="glass-panel rounded-2xl border border-darkBorder/50 p-8 shadow-xl space-y-6 glow-border">
+              <div class="flex items-center space-x-6">
+                <div id="profile-avatar" class="h-20 w-20 rounded-full bg-gradient-to-br from-mediumPurple via-royalBlue to-softBlue flex items-center justify-center font-outfit font-bold text-white text-3xl shadow-lg">
+                  U
+                </div>
+                <div class="space-y-1">
+                  <h3 id="profile-name" class="text-2xl font-bold font-outfit text-white">John Doe</h3>
+                  <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-softBlue/30 text-softBlue bg-softBlue/10 inline-block">Enterprise AI Account Tier</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-6 pt-6 border-t border-darkBorder/40 text-sm">
+                <div>
+                  <span class="text-gray-500 block text-xs uppercase tracking-wider font-semibold">Email Address</span>
+                  <span id="profile-email" class="text-gray-200 mt-1 block">john@company.com</span>
+                </div>
+                <div>
+                  <span class="text-gray-500 block text-xs uppercase tracking-wider font-semibold">Account Status</span>
+                  <span class="text-emerald-400 mt-1 block font-semibold flex items-center"><span class="h-2 w-2 bg-emerald-400 rounded-full inline-block mr-1.5 animate-pulse"></span>Active</span>
+                </div>
+                <div>
+                  <span class="text-gray-500 block text-xs uppercase tracking-wider font-semibold">Strategic Audits Ran</span>
+                  <span id="profile-reports-count" class="text-gray-200 mt-1 block font-bold font-outfit">0 Audits</span>
+                </div>
+                <div>
+                  <span class="text-gray-500 block text-xs uppercase tracking-wider font-semibold">API Model Integrations</span>
+                  <span class="text-softBlue mt-1 block">Google Gemini v1.5 Flash</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Password Reset inside Profile -->
+            <div class="glass-panel rounded-2xl border border-darkBorder/50 p-6 shadow-xl space-y-4">
+              <h3 class="font-outfit font-bold text-white text-lg">Update Account Password</h3>
+              
+              <div id="profile-pass-success" class="hidden p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs text-center">
+                Password updated successfully!
+              </div>
+
+              <form onsubmit="handleProfilePasswordReset(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-gray-400">Current Password</label>
+                    <input type="password" required id="profile-cur-pass" placeholder="••••••••" class="w-full px-4 py-2.5 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-xs text-white" />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-gray-400">New Password</label>
+                    <input type="password" required id="profile-new-pass" placeholder="••••••••" class="w-full px-4 py-2.5 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-xs text-white" />
+                  </div>
+                </div>
+                <button type="submit" class="px-5 py-2.5 bg-darkCard border border-darkBorder hover:border-softBlue/40 text-white rounded-xl text-xs font-semibold transition-all">
+                  Update Password
+                </button>
+              </form>
+            </div>
+          </div>
+
+
+          <!-- PANEL: ABOUT PAGE (VISUAL PIPELINE STEPS) -->
+          <div id="panel-about" class="hidden max-w-5xl mx-auto space-y-10">
+            <div class="flex flex-col md:flex-row justify-between items-center border-b border-darkBorder/40 pb-6 gap-4">
+              <div>
+                <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">How the Analytics Engine Works</h2>
+                <p class="text-sm text-gray-500 mt-1">Stunning visual data pipeline explaining the dashboard creation process</p>
+              </div>
+              <span class="text-xs font-mono font-bold text-softBlue bg-[#250F4F]/40 border border-darkBorder px-3 py-1.5 rounded-full">Gemini 3.5 Engine</span>
+            </div>
+
+            <!-- VISUAL PIPELINE FLOWCHART -->
+            <div class="glass-panel p-8 rounded-3xl border border-darkBorder/50 shadow-xl space-y-8 relative overflow-hidden">
+              <h3 class="font-outfit font-bold text-white text-lg flex items-center space-x-2">
+                <i data-lucide="network" class="h-5 w-5 text-softBlue animate-pulse"></i>
+                <span>Data Analytics Engine Pipeline</span>
+              </h3>
+
+              <!-- Graphic SVG Flow Chart (Horizontal) -->
+              <div class="relative hidden lg:block overflow-visible py-10 my-4">
+                <!-- Connecting glowing SVG paths with animated sliding packets -->
+                <svg viewBox="0 0 1000 4" class="absolute top-1/2 left-0 w-full h-1 -translate-y-1/2 -z-10 overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Dotted base line from Node 1 to Node 6 -->
+                  <path d="M 40 2 L 960 2" stroke="#1F0F3E" stroke-width="4" stroke-dasharray="8,12" />
+                  <path class="animate-dash" d="M 40 2 L 960 2" stroke="#8DA8FF" stroke-width="3" />
+                  
+                  <!-- sliding packets running the entire length -->
+                  <circle r="4" fill="#54E1EF" style="filter: drop-shadow(0 0 6px #54E1EF)">
+                    <animateMotion dur="4s" repeatCount="indefinite" path="M 40 2 L 960 2" />
+                  </circle>
+                  <circle r="4" fill="#8DA8FF" style="filter: drop-shadow(0 0 6px #8DA8FF)">
+                    <animateMotion dur="4s" begin="2s" repeatCount="indefinite" path="M 40 2 L 960 2" />
+                  </circle>
+                </svg>
+
+                <div class="flex justify-between px-2">
+                  <!-- Node 1 -->
+                  <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="h-12 w-12 rounded-full border-2 border-softBlue bg-[#000000] flex items-center justify-center text-softBlue font-bold font-outfit shadow-lg group-hover:border-[#54E1EF] group-hover:shadow-[0_0_15px_rgba(84,225,239,0.3)] transition-all cursor-pointer"><i data-lucide="target" class="h-5 w-5"></i></div>
+                    <span class="text-xs font-bold text-white tracking-wide text-center">1. Define Goals</span>
+                    <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">AI chatbot records organization profile</span>
+                  </div>
+
+                  <!-- Node 2 -->
+                  <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="h-12 w-12 rounded-full border-2 border-mediumPurple bg-[#000000] flex items-center justify-center text-softBlue font-bold font-outfit shadow-lg group-hover:border-softBlue group-hover:shadow-[0_0_15px_rgba(141,168,255,0.3)] transition-all cursor-pointer"><i data-lucide="upload-cloud" class="h-5 w-5"></i></div>
+                    <span class="text-xs font-bold text-white tracking-wide text-center">2. Ingest Ledger</span>
+                    <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">Drop CSV sheet or load demo database</span>
+                  </div>
+
+                  <!-- Node 3 -->
+                  <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="h-12 w-12 rounded-full border-2 border-royalBlue bg-[#000000] flex items-center justify-center text-softBlue font-bold font-outfit shadow-lg group-hover:border-royalBlue group-hover:shadow-[0_0_15px_rgba(63,127,222,0.3)] transition-all cursor-pointer"><i data-lucide="activity" class="h-5 w-5"></i></div>
+                    <span class="text-xs font-bold text-white tracking-wide text-center">3. Anomaly Scan</span>
+                    <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">Compute z-scores for spending deviations</span>
+                  </div>
+
+                  <!-- Node 4 -->
+                  <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="h-12 w-12 rounded-full border-2 border-softBlue bg-[#000000] flex items-center justify-center text-softBlue font-bold font-outfit shadow-lg group-hover:border-softBlue group-hover:shadow-[0_0_15px_rgba(141,168,255,0.3)] transition-all cursor-pointer"><i data-lucide="trending-up" class="h-5 w-5"></i></div>
+                    <span class="text-xs font-bold text-white tracking-wide text-center">4. Forecast Models</span>
+                    <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">6-month ARIMA projection curves</span>
+                  </div>
+
+                  <!-- Node 5 -->
+                  <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="h-12 w-12 rounded-full border-2 border-mediumPurple bg-[#000000] flex items-center justify-center text-softBlue font-bold font-outfit shadow-lg group-hover:border-mediumPurple group-hover:shadow-[0_0_15px_rgba(81,46,139,0.3)] transition-all cursor-pointer"><i data-lucide="sparkles" class="h-5 w-5"></i></div>
+                    <span class="text-xs font-bold text-white tracking-wide text-center">5. AI Strategy</span>
+                    <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">Gemini audits metrics & structures SWOT</span>
+                  </div>
+
+                  <!-- Node 6 -->
+                  <div class="flex flex-col items-center space-y-3 w-36 transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-tr from-mediumPurple to-softBlue flex items-center justify-center text-white font-bold font-outfit shadow-lg group-hover:shadow-[0_0_15px_rgba(141,168,255,0.5)] transition-all cursor-pointer"><i data-lucide="sliders" class="h-5 w-5"></i></div>
+                    <span class="text-xs font-bold text-white tracking-wide text-center">6. Interactive View</span>
+                    <span style="font-size: 9px;" class="text-gray-500 text-center leading-relaxed">Adjust simulator variables & export PDF</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mobile Grid (Vertical) -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-6">
+                <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                  <div class="h-9 w-9 rounded-full bg-softBlue/10 text-softBlue flex items-center justify-center font-bold">1</div>
+                  <div>
+                    <h4 class="font-bold text-white text-xs">Define Goals</h4>
+                    <p style="font-size: 10px;" class="text-gray-500">AI chatbot records organization profile</p>
+                  </div>
+                </div>
+                <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                  <div class="h-9 w-9 rounded-full bg-mediumPurple/10 text-softBlue flex items-center justify-center font-bold">2</div>
+                  <div>
+                    <h4 class="font-bold text-white text-xs">Ingest Ledger</h4>
+                    <p style="font-size: 10px;" class="text-gray-500">Drop CSV sheet or load demo database</p>
+                  </div>
+                </div>
+                <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                  <div class="h-9 w-9 rounded-full bg-royalBlue/10 text-softBlue flex items-center justify-center font-bold">3</div>
+                  <div>
+                    <h4 class="font-bold text-white text-xs">Anomaly Scan</h4>
+                    <p style="font-size: 10px;" class="text-gray-500">Compute z-scores for spending deviations</p>
+                  </div>
+                </div>
+                <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                  <div class="h-9 w-9 rounded-full bg-softBlue/10 text-softBlue flex items-center justify-center font-bold">4</div>
+                  <div>
+                    <h4 class="font-bold text-white text-xs">Forecast Models</h4>
+                    <p style="font-size: 10px;" class="text-gray-500">6-month ARIMA projection curves</p>
+                  </div>
+                </div>
+                <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                  <div class="h-9 w-9 rounded-full bg-mediumPurple/10 text-softBlue flex items-center justify-center font-bold">5</div>
+                  <div>
+                    <h4 class="font-bold text-white text-xs">AI Strategy</h4>
+                    <p style="font-size: 10px;" class="text-gray-500">Gemini audits metrics & structures SWOT</p>
+                  </div>
+                </div>
+                <div class="p-4 bg-black border border-darkBorder rounded-2xl flex items-center space-x-4">
+                  <div class="h-9 w-9 rounded-full bg-gradient-to-tr from-mediumPurple to-softBlue text-white flex items-center justify-center font-bold">6</div>
+                  <div>
+                    <h4 class="font-bold text-white text-xs">Interactive View</h4>
+                    <p style="font-size: 10px;" class="text-gray-500">Adjust simulator variables & export PDF</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EASY WRITTEN STEPS -->
+            <div class="glass-panel rounded-2xl border border-darkBorder/50 p-8 shadow-xl space-y-6">
+              <h3 class="font-outfit font-bold text-white text-lg">Step-by-Step Dashboard Process (Easy Guide)</h3>
+              
+              <div class="space-y-6 text-sm">
+                <!-- Step 1 Details -->
+                <div class="flex items-start space-x-4">
+                  <div class="h-7 w-7 rounded-full bg-[#250F4F] border border-mediumPurple text-softBlue flex items-center justify-center font-bold text-xs font-outfit flex-shrink-0 mt-0.5">1</div>
+                  <div>
+                    <h4 class="font-bold text-gray-200">Start the chatbot & configure targets</h4>
+                    <p class="text-xs text-gray-400 mt-1 leading-relaxed">
+                      Go to **"New Analysis"**. The AI assistant chatbot will guide you. Input your organization name, industry, and employee size. Describe your specific pain points (e.g. "inventory costs, slow conversion, low ROI") in plain English so the system knows what metrics to look for.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Step 2 Details -->
+                <div class="flex items-start space-x-4">
+                  <div class="h-7 w-7 rounded-full bg-[#250F4F] border border-mediumPurple text-softBlue flex items-center justify-center font-bold text-xs font-outfit flex-shrink-0 mt-0.5">2</div>
+                  <div>
+                    <h4 class="font-bold text-gray-200">Load your spreadsheet</h4>
+                    <p class="text-xs text-gray-400 mt-1 leading-relaxed">
+                      Drag and drop your metrics CSV file directly into the chat bubble workspace. If you just want to explore the features, simply click **"Use Demo Dataset"** to load pre-seeded corporate ledger metrics instantly.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Step 3 Details -->
+                <div class="flex items-start space-x-4">
+                  <div class="h-7 w-7 rounded-full bg-[#250F4F] border border-mediumPurple text-softBlue flex items-center justify-center font-bold text-xs font-outfit flex-shrink-0 mt-0.5">3</div>
+                  <div>
+                    <h4 class="font-bold text-gray-200">Interact with the Dashboard & simulate scenario multipliers</h4>
+                    <p class="text-xs text-gray-400 mt-1 leading-relaxed">
+                      Your dashboard renders historical trends, z-score anomalies, and a 6-month ARIMA forecast. Use the **What-If Simulator** sliders (Marketing, R&D, Sales) to model strategic changes and instantly watch the predicted revenue and ROI projections adjust!
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Step 4 Details -->
+                <div class="flex items-start space-x-4">
+                  <div class="h-7 w-7 rounded-full bg-[#250F4F] border border-mediumPurple text-softBlue flex items-center justify-center font-bold text-xs font-outfit flex-shrink-0 mt-0.5">4</div>
+                  <div>
+                    <h4 class="font-bold text-gray-200">Customize, Edit, & Download your Report</h4>
+                    <p class="text-xs text-gray-400 mt-1 leading-relaxed">
+                      Click **"Edit Insights"** to modify KPIs, SWOT matrix bullets, or strategic recommendations manually. When done, click **"Save Changes"** to write modifications to SQLite, choose your company color theme using the color selector, and click **"Download PDF Report"** to export a formatted corporate growth audit.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- MOBILE BOTTOM NAVIGATION -->
+        <div class="fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-lg border-t border-darkBorder flex md:hidden justify-around items-center py-2.5 px-4 shadow-xl">
+          <button onclick="selectTab('history')" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-white transition-colors">
+            <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
+            <span class="text-[9px]">Dashboards</span>
+          </button>
+          <button onclick="selectTab('new-analysis')" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-white transition-colors">
+            <i data-lucide="plus-circle" class="h-5 w-5"></i>
+            <span class="text-[9px]">New Audit</span>
+          </button>
+          <button onclick="selectTab('about')" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-white transition-colors">
+            <i data-lucide="help-circle" class="h-5 w-5"></i>
+            <span class="text-[9px]">How it Works</span>
+          </button>
+          <button onclick="selectTab('profile')" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-white transition-colors">
+            <i data-lucide="user" class="h-5 w-5"></i>
+            <span class="text-[9px]">Profile</span>
+          </button>
+        </div>
+      </div>
+
+  </div>
+
+  <!-- ==================== GOOGLE SIGN-IN MODAL ==================== -->
+  <div id="google-auth-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm">
+    <div class="glass-panel w-full max-w-sm rounded-2xl p-6 border border-darkBorder shadow-2xl animate-fade-in relative flex flex-col space-y-4">
+      
+      <!-- Close Button -->
+      <button onclick="closeGoogleModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+
+      <!-- Google Brand Header -->
+      <div class="flex flex-col items-center space-y-2 mt-2">
+        <svg class="h-8 w-8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        <h4 class="font-outfit font-bold text-white text-base">Sign in with Google</h4>
+        <p class="text-[11px] text-gray-500">to continue to <span class="text-softBlue font-semibold">Organalytics</span></p>
+      </div>
+
+      <!-- 1. Google Accounts List -->
+      <div id="google-accounts-list" class="space-y-3 pt-2">
+        <!-- Account 1 -->
+        <button onclick="selectGoogleAccount('Jane Doe', 'jane.doe@company.com')" class="w-full text-left flex items-center space-x-3 p-3 bg-black border border-darkBorder hover:border-softBlue/30 hover:bg-darkCard rounded-xl transition-all group">
+          <div class="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-black font-outfit text-sm">J</div>
+          <div class="overflow-hidden flex-grow">
+            <span class="font-semibold text-xs text-gray-200 block truncate group-hover:text-white transition-colors">Jane Doe</span>
+            <span class="text-[10px] text-gray-500 block truncate">jane.doe@company.com</span>
+          </div>
+          <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500 group-hover:text-gray-300 transition-colors"></i>
+        </button>
+
+        <!-- Account 2 -->
+        <button onclick="selectGoogleAccount('Alex Mercer', 'alex.mercer@startup.io')" class="w-full text-left flex items-center space-x-3 p-3 bg-black border border-darkBorder hover:border-softBlue/30 hover:bg-darkCard rounded-xl transition-all group">
+          <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white font-outfit text-sm">A</div>
+          <div class="overflow-hidden flex-grow">
+            <span class="font-semibold text-xs text-gray-200 block truncate group-hover:text-white transition-colors">Alex Mercer</span>
+            <span class="text-[10px] text-gray-500 block truncate">alex.mercer@startup.io</span>
+          </div>
+          <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500 group-hover:text-gray-300 transition-colors"></i>
+        </button>
+
+        <div class="flex items-center my-3 text-xs text-gray-600 font-semibold">
+          <div class="flex-grow border-t border-darkBorder/40"></div>
+          <span class="px-2">or</span>
+          <div class="flex-grow border-t border-darkBorder/40"></div>
+        </div>
+
+        <!-- Use another account -->
+        <button onclick="showGoogleCustomForm()" class="w-full text-left flex items-center space-x-3 p-3 border border-dashed border-darkBorder hover:border-softBlue/45 hover:bg-darkCard/50 rounded-xl transition-all group">
+          <div class="h-8 w-8 rounded-full bg-darkBorder/50 flex items-center justify-center text-gray-400 group-hover:text-softBlue transition-colors">
+            <i data-lucide="user-plus" class="h-4 w-4"></i>
+          </div>
+          <span class="font-semibold text-xs text-gray-400 group-hover:text-white transition-colors">Use another account</span>
+        </button>
+      </div>
+
+      <!-- 2. Google Custom Account Form -->
+      <form id="google-custom-form" onsubmit="handleGoogleCustomSubmit(event)" class="hidden space-y-4 pt-2">
+        <div class="space-y-1 text-left">
+          <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Your Full Name</label>
+          <input type="text" id="google-input-name" required placeholder="Jane Doe" class="w-full px-4 py-2.5 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-xs text-white" />
+        </div>
+        
+        <div class="space-y-1 text-left">
+          <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Email Address</label>
+          <input type="email" id="google-input-email" required placeholder="username@company.com" class="w-full px-4 py-2.5 bg-black border border-darkBorder rounded-xl focus:outline-none focus:border-softBlue/60 text-xs text-white" />
+        </div>
+
+        <div class="flex space-x-3 pt-2">
+          <button type="button" onclick="showGoogleAccountsList()" class="flex-1 py-2.5 px-4 bg-black border border-darkBorder hover:bg-darkCard text-gray-400 font-bold rounded-xl text-xs transition-colors">
+            Back
+          </button>
+          <button type="submit" class="flex-1 py-2.5 px-4 bg-[#54E1EF] hover:bg-[#46C8D5] text-black font-bold rounded-xl text-xs shadow-md">
+            Connect
+          </button>
+        </div>
+      </form>
+
+      <!-- 3. Google Auth Loader -->
+      <div id="google-auth-loader" class="hidden flex flex-col items-center justify-center py-10 space-y-4">
+        <div class="relative h-12 w-12 flex items-center justify-center">
+          <div class="absolute inset-0 rounded-full border-2 border-darkBorder"></div>
+          <div class="absolute inset-0 rounded-full border-2 border-t-softBlue border-r-mediumPurple animate-spin"></div>
+        </div>
+        <div class="text-center space-y-1">
+          <span class="text-xs font-semibold text-gray-300 block">Authorizing Google Session</span>
+          <span class="text-[10px] text-gray-500 block">Connecting to OAuth servers...</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== CLIENT SIDE APP LOGIC ==================== -->
+  <script src="app.js"></script>
+
+
+  <!-- SHARE DASHBOARD MODAL -->
+  <div id="share-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 border border-darkBorder shadow-2xl animate-fade-in relative">
+      <button onclick="closeShareModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+      
+      <div class="space-y-4">
+        <div class="flex items-center space-x-3">
+          <div class="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+            <i data-lucide="share-2" class="h-5 w-5"></i>
+          </div>
+          <div>
+            <h3 class="font-outfit font-bold text-white text-base">Share Dashboard</h3>
+            <p class="text-xs text-gray-500">Create a public read-only link for stakeholders</p>
+          </div>
+        </div>
+
+        <div class="bg-black border border-darkBorder rounded-xl p-3 flex items-center justify-between mt-2">
+          <input type="text" id="share-link-input" readonly class="bg-transparent text-gray-300 text-xs flex-grow focus:outline-none select-all pr-2 truncate" />
+          <button onclick="copyShareLink()" class="px-3 py-1.5 bg-primary/20 border border-primary/40 hover:bg-primary/30 text-primary text-xs font-bold rounded-lg transition-colors flex items-center space-x-1">
+            <i data-lucide="copy" class="h-3.5 w-3.5"></i>
+            <span>Copy</span>
+          </button>
+        </div>
+        <p id="share-copied-toast" class="text-center text-emerald-400 text-xs hidden">Link copied to clipboard!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF REPORT PREVIEW DRAWER -->
+  <div id="pdf-preview-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-black border-l border-darkBorder transform translate-x-full transition-transform duration-300 shadow-2xl flex flex-col justify-between hidden">
+    <div class="p-6 border-b border-darkBorder flex items-center justify-between bg-black/60 backdrop-blur-md">
+      <div>
+        <h3 class="font-outfit font-bold text-white text-lg">Report Live Preview</h3>
+        <p class="text-xs text-gray-500">5-page PDF preview</p>
+      </div>
+      <button onclick="closePDFPreviewDrawer()" class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-darkBorder/40 transition-colors">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+    </div>
+    
+    <!-- Drawer content (the 5 mini A4 pages) -->
+    <div class="flex-grow overflow-y-auto p-6 space-y-6 bg-neutral-900/60 flex flex-col items-center">
+      <div id="pdf-preview-pages" class="space-y-6 flex flex-col items-center w-full">
+        <!-- 5 mini page templates filled dynamically -->
+      </div>
+    </div>
+
+    <div class="p-6 border-t border-darkBorder bg-black flex space-x-3">
+      <button onclick="closePDFPreviewDrawer()" class="flex-1 py-3 px-4 bg-darkCard border border-darkBorder rounded-xl text-gray-400 font-bold text-xs hover:bg-darkBorder/30 hover:text-white transition-colors">
+        Close Preview
+      </button>
+      <button onclick="downloadReportAsPDF()" class="flex-1 py-3 px-4 bg-gradient-to-r from-mediumPurple to-royalBlue text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center space-x-2">
+        <i data-lucide="file-down" class="h-4 w-4"></i>
+        <span>Download PDF</span>
+      </button>
+    </div>
+  </div>
+
+
+  </body>
+</html>

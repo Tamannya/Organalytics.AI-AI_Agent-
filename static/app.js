@@ -426,7 +426,7 @@
       const tabs = [
         'new-analysis', 'dashboard', 'history', 'about', 'processing', 'profile',
         'ask-ai', 'scenario-simulator', 'vision-upload', 'rec-tracker', 'org-health',
-        'benchmarks', 'history-timeline', 'shared-reports', 'downloads', 'notifications', 'settings'
+        'benchmarks', 'history-timeline', 'shared-reports', 'downloads', 'notifications', 'settings', 'subscription'
       ];
       tabs.forEach(t => {
         const el = document.getElementById(`panel-${t}`);
@@ -437,7 +437,7 @@
       const navButtons = [
         'new-analysis', 'history', 'ask-ai', 'scenario-simulator', 'vision-upload',
         'rec-tracker', 'org-health', 'benchmarks', 'history-timeline', 'shared-reports',
-        'downloads', 'about', 'notifications', 'settings'
+        'downloads', 'about', 'notifications', 'settings', 'subscription'
       ];
       navButtons.forEach(btn => {
         const el = document.getElementById(`nav-${btn}`);
@@ -471,6 +471,7 @@
       else if (tabName === 'downloads') headerTitle = "Downloads Center";
       else if (tabName === 'notifications') headerTitle = "Notification Alerts";
       else if (tabName === 'settings') headerTitle = "System Settings";
+      else if (tabName === 'subscription') headerTitle = "Subscription Plans";
       
       document.getElementById('header-title').innerText = headerTitle;
       
@@ -494,6 +495,90 @@
       }
       
       lucide.createIcons();
+    }
+
+    // ---- Subscription Billing Toggle ----
+    let currentBillingCycle = 'monthly';
+
+    const subscriptionPrices = {
+      monthly: {
+        growth: { display: '\u20b9499', sub: '' },
+        pro:    { display: '\u20b91299', sub: '' },
+        scale:  { display: '\u20b93999', sub: '' }
+      },
+      annual: {
+        growth: { display: '\u20b9399', sub: '\u20b9499/mo billed monthly' },
+        pro:    { display: '\u20b91039', sub: '\u20b91299/mo billed monthly' },
+        scale:  { display: '\u20b93199', sub: '\u20b93999/mo billed monthly' }
+      }
+    };
+
+    function setBillingCycle(cycle) {
+      currentBillingCycle = cycle;
+      const prices = subscriptionPrices[cycle];
+
+      // Update price display
+      document.getElementById('price-growth').textContent = prices.growth.display;
+      document.getElementById('price-growth-sub').textContent = prices.growth.sub;
+      document.getElementById('price-pro').textContent = prices.pro.display;
+      document.getElementById('price-pro-sub').textContent = prices.pro.sub;
+      document.getElementById('price-scale').textContent = prices.scale.display;
+      document.getElementById('price-scale-sub').textContent = prices.scale.sub;
+
+      // Strikethrough annual sub-prices in red
+      const subEls = ['price-growth-sub', 'price-pro-sub', 'price-scale-sub'];
+      subEls.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.textContent.trim()) {
+          el.className = 'text-[11px] h-4 line-through text-rose-400/70';
+        } else if (el) {
+          el.className = 'text-[11px] text-gray-600 h-4';
+        }
+      });
+
+      // Toggle button styles
+      const monthlyBtn = document.getElementById('billing-monthly-btn');
+      const annualBtn  = document.getElementById('billing-annual-btn');
+      if (cycle === 'monthly') {
+        monthlyBtn.className = 'relative z-10 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 bg-gradient-to-r from-mediumPurple to-royalBlue text-white shadow-md';
+        annualBtn.className  = 'relative z-10 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 text-gray-400 hover:text-gray-200';
+      } else {
+        annualBtn.className  = 'relative z-10 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 bg-gradient-to-r from-mediumPurple to-royalBlue text-white shadow-md';
+        monthlyBtn.className = 'relative z-10 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 text-gray-400 hover:text-gray-200';
+      }
+    }
+
+    function handlePlanSelect(planName, tier) {
+      if (tier === 'free') {
+        // Already on free — just show a message
+        const msg = document.createElement('div');
+        msg.innerHTML = `<div style="position:fixed;bottom:24px;right:24px;z-index:9999;" class="glass-panel px-5 py-3.5 rounded-2xl border border-darkBorder shadow-2xl flex items-center gap-3 animate-fade-in">
+          <i data-lucide="check-circle" class="h-5 w-5 text-emerald-400 flex-shrink-0"></i>
+          <span class="text-sm font-semibold text-white">You are on the Free Explorer plan.</span>
+        </div>`;
+        document.body.appendChild(msg);
+        lucide.createIcons();
+        setTimeout(() => msg.remove(), 3500);
+        return;
+      }
+      const billing = currentBillingCycle === 'annual' ? 'annually' : 'monthly';
+      const prices  = subscriptionPrices[currentBillingCycle];
+      const tierKey = tier === 'starter' ? 'growth' : tier === 'pro' ? 'pro' : 'scale';
+      const price   = tierKey !== 'scale' ? prices[tierKey]?.display : prices.scale.display;
+
+      const toast = document.createElement('div');
+      toast.innerHTML = `<div style="position:fixed;bottom:24px;right:24px;z-index:9999;" class="glass-panel px-5 py-3.5 rounded-2xl border border-softBlue/30 shadow-2xl flex items-center gap-3 animate-fade-in">
+        <div class="h-8 w-8 rounded-xl bg-gradient-to-br from-mediumPurple to-royalBlue flex items-center justify-center flex-shrink-0">
+          <i data-lucide="crown" class="h-4 w-4 text-white"></i>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-white">${planName} Plan &mdash; ${price}/mo billed ${billing}</p>
+          <p class="text-[10px] text-gray-400 mt-0.5">Redirecting to checkout&hellip; (demo mode)</p>
+        </div>
+      </div>`;
+      document.body.appendChild(toast);
+      lucide.createIcons();
+      setTimeout(() => toast.remove(), 4000);
     }
 
     // Password visibility toggle

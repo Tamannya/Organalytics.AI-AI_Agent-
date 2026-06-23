@@ -845,6 +845,13 @@
                   <span>How it Works</span>
                 </div>
               </button>
+              <button id="nav-subscription" onclick="selectTab('subscription')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="crown" class="h-4.5 w-4.5"></i>
+                  <span>Subscription</span>
+                </div>
+                <span class="px-1.5 py-0.5 text-[8px] font-extrabold text-amber-400 bg-amber-500/10 border border-amber-500/25 rounded uppercase tracking-wider">PRO</span>
+              </button>
               <button id="nav-notifications" onclick="selectTab('notifications')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium text-gray-400 hover:bg-darkBorder/30 hover:text-gray-200">
                 <div class="flex items-center space-x-3">
                   <i data-lucide="bell" class="h-4.5 w-4.5"></i>
@@ -2783,6 +2790,203 @@
               </div>
             </div>
           </div>
+
+          <!-- ==================== PANEL: SUBSCRIPTION ==================== -->
+          <div id="panel-subscription" class="hidden space-y-8 max-w-7xl mx-auto">
+            <div class="border-b border-darkBorder/40 pb-5">
+              <h2 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Subscription Plans</h2>
+              <p class="text-sm text-gray-500 mt-1">Choose the plan that fits your team. Upgrade, downgrade, or cancel anytime.</p>
+            </div>
+
+            <!-- Billing Toggle -->
+            <div class="flex items-center justify-center">
+              <div class="relative flex items-center bg-darkCard border border-darkBorder rounded-2xl p-1.5 gap-1 shadow-xl">
+                <button id="billing-monthly-btn" onclick="setBillingCycle('monthly')" class="relative z-10 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 bg-gradient-to-r from-mediumPurple to-royalBlue text-white shadow-md">
+                  Monthly
+                </button>
+                <button id="billing-annual-btn" onclick="setBillingCycle('annual')" class="relative z-10 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 text-gray-400 hover:text-gray-200">
+                  Annually
+                  <span class="ml-2 px-2 py-0.5 text-[9px] font-extrabold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 rounded-full uppercase tracking-wider">Save 20%</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Pricing Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+
+              <!-- Card 1: Explorer (Free) -->
+              <div class="relative flex flex-col glass-panel rounded-2xl border border-darkBorder/60 p-6 shadow-xl transition-all duration-300 hover:border-darkBorder hover:shadow-2xl group">
+                <div class="mb-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-500/15 border border-gray-500/30 text-gray-400 uppercase tracking-wider">Free</span>
+                </div>
+                <h3 class="font-outfit font-extrabold text-white text-xl mb-1">Explorer</h3>
+                <p class="text-xs text-gray-500 mb-5">Try before you commit</p>
+                <div class="mb-2">
+                  <div class="flex items-end gap-1">
+                    <span class="text-4xl font-extrabold font-outfit text-white">₹0</span>
+                    <span class="text-sm text-gray-500 mb-1.5">/mo</span>
+                  </div>
+                  <p class="text-[11px] text-gray-600 h-4"> </p>
+                </div>
+                <button onclick="handlePlanSelect('Explorer','free')" class="w-full mt-4 mb-6 py-2.5 px-4 rounded-xl border border-darkBorder text-gray-300 text-sm font-bold hover:bg-darkBorder/40 hover:text-white transition-all duration-200 flex items-center justify-center gap-2">
+                  Get started <i data-lucide="arrow-up-right" class="h-3.5 w-3.5"></i>
+                </button>
+                <div class="space-y-2.5 flex-1">
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>3 analyses per month</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>1 organization</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>Basic dashboard</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>PDF report (3 pages)</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>5 themes</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Vision upload</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Ask AI chat</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Scenario simulator</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Rec. tracker</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Benchmarks</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Team workspace</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Watermark removed</span></div>
+                </div>
+              </div>
+
+              <!-- Card 2: Growth (Starter) -->
+              <div class="relative flex flex-col glass-panel rounded-2xl border border-darkBorder/60 p-6 shadow-xl transition-all duration-300 hover:border-softBlue/30 hover:shadow-2xl group">
+                <div class="mb-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 uppercase tracking-wider">Starter</span>
+                </div>
+                <h3 class="font-outfit font-extrabold text-white text-xl mb-1">Growth</h3>
+                <p class="text-xs text-gray-500 mb-5">For freelancers &amp; SMEs</p>
+                <div class="mb-2">
+                  <div class="flex items-end gap-1">
+                    <span id="price-growth" class="text-4xl font-extrabold font-outfit text-white">₹499</span>
+                    <span class="text-sm text-gray-500 mb-1.5">/mo</span>
+                  </div>
+                  <p id="price-growth-sub" class="text-[11px] text-gray-600 h-4"> </p>
+                </div>
+                <button onclick="handlePlanSelect('Growth','starter')" class="w-full mt-4 mb-6 py-2.5 px-4 rounded-xl border border-darkBorder text-gray-300 text-sm font-bold hover:bg-darkBorder/40 hover:text-white transition-all duration-200 flex items-center justify-center gap-2">
+                  Start free trial <i data-lucide="arrow-up-right" class="h-3.5 w-3.5"></i>
+                </button>
+                <div class="space-y-2.5 flex-1">
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>15 analyses per month</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>3 organizations</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>Full dashboard + charts</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>PDF report (5 pages)</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>All 8 themes</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>Vision upload (10/mo)</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>Ask AI chat</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Scenario simulator</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Rec. tracker</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Benchmarks</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-500"><i data-lucide="x" class="h-3.5 w-3.5 text-gray-600 flex-shrink-0 mt-0.5"></i><span>Team workspace</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i><span>No watermark</span></div>
+                </div>
+              </div>
+
+              <!-- Card 3: Pro (Most Popular) -->
+              <div class="relative flex flex-col rounded-2xl border-2 border-softBlue/50 p-6 shadow-2xl transition-all duration-300 hover:border-softBlue hover:shadow-softBlue/10 group" style="background: linear-gradient(135deg, rgba(10,5,20,0.95) 0%, rgba(37,15,79,0.5) 100%); box-shadow: 0 0 40px rgba(141,168,255,0.08), 0 20px 60px rgba(0,0,0,0.5);">
+                <!-- Most Popular Badge -->
+                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-extrabold bg-gradient-to-r from-mediumPurple to-royalBlue text-white uppercase tracking-wider shadow-lg">
+                    <i data-lucide="star" class="h-3 w-3"></i> Most popular
+                  </span>
+                </div>
+                <div class="mb-4 mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-softBlue/15 border border-softBlue/30 text-softBlue uppercase tracking-wider">Most popular</span>
+                </div>
+                <h3 class="font-outfit font-extrabold text-white text-xl mb-1">Pro</h3>
+                <p class="text-xs text-gray-400 mb-5">For growing businesses</p>
+                <div class="mb-2">
+                  <div class="flex items-end gap-1">
+                    <span id="price-pro" class="text-4xl font-extrabold font-outfit text-white">₹1299</span>
+                    <span class="text-sm text-gray-400 mb-1.5">/mo</span>
+                  </div>
+                  <p id="price-pro-sub" class="text-[11px] text-gray-500 h-4"> </p>
+                </div>
+                <button onclick="handlePlanSelect('Pro','pro')" class="w-full mt-4 mb-6 py-2.5 px-4 rounded-xl bg-gradient-to-r from-mediumPurple to-royalBlue text-white text-sm font-bold hover:opacity-90 transition-all duration-200 shadow-md flex items-center justify-center gap-2">
+                  Start free trial <i data-lucide="arrow-up-right" class="h-3.5 w-3.5"></i>
+                </button>
+                <div class="space-y-2.5 flex-1">
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>Unlimited analyses</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>10 organizations</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>Full dashboard + drill-down</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>PDF report (5 pages, themed)</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>Custom theme builder</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>Vision upload (unlimited)</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>Ask AI chat</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>Scenario simulator</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>Rec. tracker</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>Industry benchmarks</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>3 team members</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-200"><i data-lucide="check" class="h-3.5 w-3.5 text-softBlue flex-shrink-0 mt-0.5"></i><span>Multilingual PDF</span></div>
+                </div>
+              </div>
+
+              <!-- Card 4: Scale (Enterprise) -->
+              <div class="relative flex flex-col glass-panel rounded-2xl border border-darkBorder/60 p-6 shadow-xl transition-all duration-300 hover:border-amber-500/30 hover:shadow-2xl group">
+                <div class="mb-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 border border-amber-500/30 text-amber-400 uppercase tracking-wider">Enterprise</span>
+                </div>
+                <h3 class="font-outfit font-extrabold text-white text-xl mb-1">Scale</h3>
+                <p class="text-xs text-gray-500 mb-5">For large orgs &amp; agencies</p>
+                <div class="mb-2">
+                  <div class="flex items-end gap-1">
+                    <span id="price-scale" class="text-4xl font-extrabold font-outfit text-white">₹3999</span>
+                    <span class="text-sm text-gray-500 mb-1.5">/mo</span>
+                  </div>
+                  <p id="price-scale-sub" class="text-[11px] text-gray-600 h-4"> </p>
+                </div>
+                <button onclick="handlePlanSelect('Scale','enterprise')" class="w-full mt-4 mb-6 py-2.5 px-4 rounded-xl border border-amber-500/40 text-amber-400 text-sm font-bold hover:bg-amber-500/10 hover:border-amber-500/60 transition-all duration-200 flex items-center justify-center gap-2">
+                  Contact sales <i data-lucide="arrow-up-right" class="h-3.5 w-3.5"></i>
+                </button>
+                <div class="space-y-2.5 flex-1">
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>Everything in Pro</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>Unlimited organizations</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>Unlimited team members</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>White-label branding</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>Custom domain</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>API access</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>Weekly AI digest email</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>Priority support</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>Data retention 2 years</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>SSO / SAML login</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>Dedicated onboarding</span></div>
+                  <div class="flex items-start gap-2.5 text-xs text-gray-300"><i data-lucide="check" class="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5"></i><span>SLA guarantee</span></div>
+                </div>
+              </div>
+
+            </div><!-- end grid -->
+
+            <!-- FAQ / Trust strip -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+              <div class="glass-panel rounded-2xl border border-darkBorder/50 p-5 flex items-start gap-4">
+                <div class="h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="shield-check" class="h-4.5 w-4.5 text-emerald-400"></i>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white font-outfit">No credit card required</h4>
+                  <p class="text-xs text-gray-500 mt-0.5">Start your 14-day free trial on any paid plan. Cancel anytime with no penalty.</p>
+                </div>
+              </div>
+              <div class="glass-panel rounded-2xl border border-darkBorder/50 p-5 flex items-start gap-4">
+                <div class="h-9 w-9 rounded-xl bg-royalBlue/10 border border-royalBlue/20 flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="refresh-cw" class="h-4.5 w-4.5 text-royalBlue"></i>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white font-outfit">Flexible billing cycles</h4>
+                  <p class="text-xs text-gray-500 mt-0.5">Switch between monthly and annual billing at any time from your account settings.</p>
+                </div>
+              </div>
+              <div class="glass-panel rounded-2xl border border-darkBorder/50 p-5 flex items-start gap-4">
+                <div class="h-9 w-9 rounded-xl bg-mediumPurple/15 border border-mediumPurple/30 flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="headphones" class="h-4.5 w-4.5 text-softBlue"></i>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white font-outfit">24/7 dedicated support</h4>
+                  <p class="text-xs text-gray-500 mt-0.5">Our team is here to help you get the most out of your organizational analytics platform.</p>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- end panel-subscription -->
+
         </main>
 
         <!-- MOBILE BOTTOM NAVIGATION -->
@@ -2909,7 +3113,7 @@
   </div>
 
   <!-- ==================== CLIENT SIDE APP LOGIC ==================== -->
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 
 
   <!-- SHARE DASHBOARD MODAL -->

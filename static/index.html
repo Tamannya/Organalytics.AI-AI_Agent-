@@ -2827,6 +2827,16 @@
       <!-- 1. Google Accounts List -->
       <div id="google-accounts-list" class="space-y-3 pt-2">
         <!-- Account 1 -->
+        <button onclick="selectGoogleAccount('Tamannya Mukherjee', 'tamannya2004@gmail.com')" class="w-full text-left flex items-center space-x-3 p-3 bg-black border border-darkBorder hover:border-softBlue/30 hover:bg-darkCard rounded-xl transition-all group">
+          <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-cyan-400 to-indigo-500 flex items-center justify-center font-bold text-white font-outfit text-sm">T</div>
+          <div class="overflow-hidden flex-grow">
+            <span class="font-semibold text-xs text-gray-200 block truncate group-hover:text-white transition-colors">Tamannya Mukherjee</span>
+            <span class="text-[10px] text-gray-500 block truncate font-mono">tamannya2004@gmail.com</span>
+          </div>
+          <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500 group-hover:text-gray-300 transition-colors"></i>
+        </button>
+
+        <!-- Account 2 -->
         <button onclick="selectGoogleAccount('Jane Doe', 'jane.doe@company.com')" class="w-full text-left flex items-center space-x-3 p-3 bg-black border border-darkBorder hover:border-softBlue/30 hover:bg-darkCard rounded-xl transition-all group">
           <div class="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-black font-outfit text-sm">J</div>
           <div class="overflow-hidden flex-grow">
@@ -2836,7 +2846,7 @@
           <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500 group-hover:text-gray-300 transition-colors"></i>
         </button>
 
-        <!-- Account 2 -->
+        <!-- Account 3 -->
         <button onclick="selectGoogleAccount('Alex Mercer', 'alex.mercer@startup.io')" class="w-full text-left flex items-center space-x-3 p-3 bg-black border border-darkBorder hover:border-softBlue/30 hover:bg-darkCard rounded-xl transition-all group">
           <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white font-outfit text-sm">A</div>
           <div class="overflow-hidden flex-grow">
@@ -2899,7 +2909,7 @@
   </div>
 
   <!-- ==================== CLIENT SIDE APP LOGIC ==================== -->
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 
 
   <!-- SHARE DASHBOARD MODAL -->

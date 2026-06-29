@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import pool from '../config/db.js';
+import pool, { getDbMeta } from '../config/db.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_change_me_in_production';
 
@@ -82,5 +82,50 @@ export const login = async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Server error during login.' });
+  }
+};
+
+export const getDbInfo = async (req, res) => {
+  try {
+    if (!req.user || req.user.email !== 'admin@test.com') {
+      return res.status(403).json({ error: 'Forbidden: Administrator access required.' });
+    }
+    const meta = getDbMeta();
+    
+    // Count stats
+    const userCount = await pool.query('SELECT COUNT(*) as count FROM users');
+    const orgCount = await pool.query('SELECT COUNT(*) as count FROM organizations');
+    const analysisCount = await pool.query('SELECT COUNT(*) as count FROM analyses');
+
+    // Get all users
+    const users = await pool.query(
+      `SELECT u.id, u.name, u.email, u.created_at, u.phone, u.title,
+              o.name as org_name,
+              (SELECT COUNT(*) FROM analyses a WHERE a.org_id = o.id) as analysis_count
+       FROM users u
+       LEFT JOIN organizations o ON o.user_id = u.id
+       ORDER BY u.id DESC`
+    );
+
+    // Map database counts properly regardless of PostgreSQL or SQLite count key names
+    const getCount = (row) => {
+      if (!row) return 0;
+      return parseInt(row.count !== undefined ? row.count : (row.cnt !== undefined ? row.cnt : 0));
+    };
+
+    res.json({
+      status: 'success',
+      db_type: meta.type,
+      db_path: meta.path,
+      counts: {
+        users: getCount(userCount.rows[0]),
+        organizations: getCount(orgCount.rows[0]),
+        analyses: getCount(analysisCount.rows[0]),
+      },
+      users: users.rows
+    });
+  } catch (error) {
+    console.error('Failed to get database info:', error);
+    res.status(500).json({ error: 'Server error retrieving database info.' });
   }
 };

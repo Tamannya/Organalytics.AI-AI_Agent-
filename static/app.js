@@ -426,7 +426,8 @@
       const tabs = [
         'new-analysis', 'dashboard', 'history', 'about', 'processing', 'profile',
         'ask-ai', 'scenario-simulator', 'vision-upload', 'rec-tracker', 'org-health',
-        'benchmarks', 'history-timeline', 'shared-reports', 'downloads', 'notifications', 'settings', 'subscription'
+        'benchmarks', 'history-timeline', 'shared-reports', 'downloads', 'notifications', 'settings', 'subscription',
+        'feedback', 'privacy', 'terms', 'contact'
       ];
       tabs.forEach(t => {
         const el = document.getElementById(`panel-${t}`);
@@ -437,7 +438,8 @@
       const navButtons = [
         'new-analysis', 'history', 'ask-ai', 'scenario-simulator', 'vision-upload',
         'rec-tracker', 'org-health', 'benchmarks', 'history-timeline', 'shared-reports',
-        'downloads', 'about', 'notifications', 'settings', 'subscription'
+        'downloads', 'about', 'notifications', 'settings', 'subscription',
+        'feedback', 'privacy', 'terms', 'contact'
       ];
       navButtons.forEach(btn => {
         const el = document.getElementById(`nav-${btn}`);
@@ -472,6 +474,10 @@
       else if (tabName === 'notifications') headerTitle = "Notification Alerts";
       else if (tabName === 'settings') headerTitle = "System Settings";
       else if (tabName === 'subscription') headerTitle = "Subscription Plans";
+      else if (tabName === 'feedback') headerTitle = "Feedback Center";
+      else if (tabName === 'privacy') headerTitle = "Privacy Policy";
+      else if (tabName === 'terms') headerTitle = "Terms of Service";
+      else if (tabName === 'contact') headerTitle = "Contact Support";
       
       document.getElementById('header-title').innerText = headerTitle;
       
@@ -808,18 +814,250 @@
       }
     }
 
-    // View Profile implementation
-    function displayUserProfile() {
-      if (!currentUser) return;
-      document.getElementById('profile-name').innerText = currentUser.name;
-      document.getElementById('profile-email').innerText = currentUser.email;
-      document.getElementById('profile-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
-      document.getElementById('profile-reports-count').innerText = `${reports.length} Strategic Audit${reports.length === 1 ? '' : 's'}`;
+    // Profile and Organization Global Variable for Pic base64
+    let profilePicBase64 = '';
+
+    function updateAvatarUI(user) {
+      if (!user) return;
       
-      // Reset pass forms
+      const containers = [
+        { id: 'user-avatar', isLarge: false },
+        { id: 'profile-avatar-container', isLarge: true }
+      ];
+      
+      containers.forEach(({ id, isLarge }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        
+        // Reset classes
+        el.className = isLarge 
+          ? "h-28 w-28 rounded-full flex items-center justify-center font-outfit font-bold text-white text-4xl shadow-xl overflow-hidden border-2 border-softBlue/30"
+          : "h-10 w-10 rounded-full flex items-center justify-center font-outfit font-bold text-white shadow-md";
+          
+        if (user.profile_pic && user.profile_pic.startsWith('data:')) {
+          el.innerHTML = `<img src="${user.profile_pic}" class="h-full w-full object-cover rounded-full" />`;
+        } else {
+          el.innerHTML = '';
+          el.innerText = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+          
+          const preset = user.profile_pic || 'purple-gradient';
+          if (preset === 'sunset-gold') {
+            el.classList.add('bg-gradient-to-br', 'from-amber-500', 'to-rose-500');
+          } else if (preset === 'forest-green') {
+            el.classList.add('bg-gradient-to-br', 'from-emerald-500', 'to-teal-400');
+          } else if (preset === 'deep-ocean') {
+            el.classList.add('bg-gradient-to-br', 'from-blue-600', 'to-cyan-400');
+          } else {
+            // default/purple-gradient
+            el.classList.add('bg-gradient-to-br', 'from-mediumPurple', 'to-softBlue');
+          }
+        }
+      });
+    }
+
+    function handleProfilePicChange(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        profilePicBase64 = evt.target.result;
+        
+        // Update UI immediately (mock-preview)
+        const mockUser = {
+          ...currentUser,
+          profile_pic: profilePicBase64
+        };
+        updateAvatarUI(mockUser);
+      };
+      reader.readAsDataURL(file);
+    }
+    
+    function selectPresetAvatar(presetName) {
+      profilePicBase64 = presetName;
+      const mockUser = {
+        ...currentUser,
+        profile_pic: profilePicBase64
+      };
+      updateAvatarUI(mockUser);
+    }
+    
+    function removeProfilePic() {
+      profilePicBase64 = '';
+      const mockUser = {
+        ...currentUser,
+        profile_pic: ''
+      };
+      updateAvatarUI(mockUser);
+    }
+
+    // View Profile implementation
+    async function displayUserProfile() {
+      if (!currentUser) return;
+      
+      // Clear alerts and passwords
       document.getElementById('profile-cur-pass').value = '';
       document.getElementById('profile-new-pass').value = '';
-      document.getElementById('profile-pass-success').classList.add('hidden');
+      const passAlert = document.getElementById('profile-pass-success');
+      if (passAlert) passAlert.classList.add('hidden');
+      const updateAlert = document.getElementById('profile-update-success');
+      if (updateAlert) updateAlert.classList.add('hidden');
+      
+      const countEl = document.getElementById('profile-reports-count');
+      if (countEl) {
+        countEl.innerText = `${reports.length} Strategic Audit${reports.length === 1 ? '' : 's'}`;
+      }
+      
+      try {
+        const res = await axios.get('/api/user/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const userData = res.data.user;
+        const orgData = res.data.organization;
+        
+        // Sync local variables
+        currentUser = {
+          ...currentUser,
+          ...userData
+        };
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        
+        // Set profilePicBase64 to current profile_pic
+        profilePicBase64 = currentUser.profile_pic || '';
+        
+        // Update displays
+        const fullNameDisplay = document.getElementById('profile-display-fullname');
+        if (fullNameDisplay) fullNameDisplay.innerText = currentUser.name;
+        
+        const titleDisplay = document.getElementById('profile-display-title');
+        if (titleDisplay) titleDisplay.innerText = currentUser.title || 'Job Title';
+        
+        // Update form text fields
+        const editName = document.getElementById('profile-edit-name');
+        if (editName) editName.value = currentUser.name || '';
+        
+        const editEmail = document.getElementById('profile-edit-email');
+        if (editEmail) editEmail.value = currentUser.email || '';
+        
+        const editPhone = document.getElementById('profile-edit-phone');
+        if (editPhone) editPhone.value = currentUser.phone || '';
+        
+        const editTitle = document.getElementById('profile-edit-title');
+        if (editTitle) editTitle.value = currentUser.title || '';
+        
+        const editBio = document.getElementById('profile-edit-bio');
+        if (editBio) editBio.value = currentUser.bio || '';
+        
+        // Update organization form fields
+        const editOrgName = document.getElementById('profile-edit-org-name');
+        if (editOrgName) editOrgName.value = orgData.name || '';
+        
+        const editOrgWebsite = document.getElementById('profile-edit-org-website');
+        if (editOrgWebsite) editOrgWebsite.value = orgData.website || '';
+        
+        const editOrgIndustry = document.getElementById('profile-edit-org-industry');
+        if (editOrgIndustry) editOrgIndustry.value = orgData.industry || '';
+        
+        const editOrgSize = document.getElementById('profile-edit-org-size');
+        if (editOrgSize) editOrgSize.value = orgData.size || '';
+        
+        const editOrgDesc = document.getElementById('profile-edit-org-desc');
+        if (editOrgDesc) editOrgDesc.value = orgData.description || '';
+        
+        const editOrgAddress = document.getElementById('profile-edit-org-address');
+        if (editOrgAddress) editOrgAddress.value = orgData.address || '';
+        
+        // Header profile sync
+        const headerBadge = document.getElementById('header-user-badge');
+        if (headerBadge) headerBadge.innerText = currentUser.name;
+        
+        const sidebarName = document.getElementById('user-display-name');
+        if (sidebarName) sidebarName.innerText = currentUser.name;
+        
+        const sidebarEmail = document.getElementById('user-display-email');
+        if (sidebarEmail) sidebarEmail.innerText = currentUser.email;
+        
+        updateAvatarUI(currentUser);
+      } catch (err) {
+        console.error("Failed to load user profile via API, using local cache", err);
+        const fullNameDisplay = document.getElementById('profile-display-fullname');
+        if (fullNameDisplay) fullNameDisplay.innerText = currentUser.name;
+        
+        const editName = document.getElementById('profile-edit-name');
+        if (editName) editName.value = currentUser.name || '';
+        
+        const editEmail = document.getElementById('profile-edit-email');
+        if (editEmail) editEmail.value = currentUser.email || '';
+        
+        updateAvatarUI(currentUser);
+      }
+    }
+
+    async function saveUserProfileDetails(e) {
+      e.preventDefault();
+      const updateAlert = document.getElementById('profile-update-success');
+      if (updateAlert) updateAlert.classList.add('hidden');
+      
+      const payload = {
+        name: document.getElementById('profile-edit-name').value.trim(),
+        email: document.getElementById('profile-edit-email').value.trim(),
+        phone: document.getElementById('profile-edit-phone').value.trim(),
+        title: document.getElementById('profile-edit-title').value.trim(),
+        bio: document.getElementById('profile-edit-bio').value.trim(),
+        orgName: document.getElementById('profile-edit-org-name').value.trim(),
+        orgWebsite: document.getElementById('profile-edit-org-website').value.trim(),
+        orgIndustry: document.getElementById('profile-edit-org-industry').value,
+        orgSize: document.getElementById('profile-edit-org-size').value,
+        orgDescription: document.getElementById('profile-edit-org-desc').value.trim(),
+        orgAddress: document.getElementById('profile-edit-org-address').value.trim(),
+        profile_pic: profilePicBase64 || ''
+      };
+      
+      try {
+        const res = await axios.put('/api/user/profile', payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Update local state
+        currentUser = {
+          ...currentUser,
+          ...res.data.user
+        };
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        
+        // Update header details
+        const headerBadge = document.getElementById('header-user-badge');
+        if (headerBadge) headerBadge.innerText = currentUser.name;
+        
+        const sidebarName = document.getElementById('user-display-name');
+        if (sidebarName) sidebarName.innerText = currentUser.name;
+        
+        const sidebarEmail = document.getElementById('user-display-email');
+        if (sidebarEmail) sidebarEmail.innerText = currentUser.email;
+        
+        // Update layout text fields
+        const fullNameDisplay = document.getElementById('profile-display-fullname');
+        if (fullNameDisplay) fullNameDisplay.innerText = currentUser.name;
+        
+        const titleDisplay = document.getElementById('profile-display-title');
+        if (titleDisplay) titleDisplay.innerText = currentUser.title || 'Job Title';
+        
+        // Re-render avatar UI elements
+        updateAvatarUI(currentUser);
+        
+        // Show success alert
+        if (updateAlert) {
+          updateAlert.classList.remove('hidden');
+          updateAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      } catch (err) {
+        console.error("Profile save error:", err);
+        const errMsg = err.response && err.response.data && err.response.data.detail
+          ? err.response.data.detail
+          : "Failed to update profile details.";
+        alert(errMsg);
+      }
     }
 
     async function handleProfilePasswordReset(e) {
@@ -938,7 +1176,12 @@
       currentUser = null;
       
       // Hide all panel pages
-      const tabs = ['new-analysis', 'dashboard', 'history', 'about', 'processing', 'profile'];
+      const tabs = [
+        'new-analysis', 'dashboard', 'history', 'about', 'processing', 'profile',
+        'ask-ai', 'scenario-simulator', 'vision-upload', 'rec-tracker', 'org-health',
+        'benchmarks', 'history-timeline', 'shared-reports', 'downloads', 'notifications', 'settings', 'subscription',
+        'feedback', 'privacy', 'terms', 'contact'
+      ];
       tabs.forEach(t => {
         const el = document.getElementById(`panel-${t}`);
         if (el) el.classList.add('hidden');
@@ -955,7 +1198,7 @@
       document.getElementById('header-user-badge').innerText = currentUser.name;
       document.getElementById('user-display-name').innerText = currentUser.name;
       document.getElementById('user-display-email').innerText = currentUser.email;
-      document.getElementById('user-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
+      updateAvatarUI(currentUser);
       
       // Load list
       await fetchReportsList();
@@ -3564,9 +3807,82 @@
       if (badge) badge.classList.add('hidden');
     }
 
-    function loadSettingsData() {
+    async function loadSettingsData() {
       const key = localStorage.getItem('GEMINI_API_KEY') || '';
       document.getElementById('settings-gemini-key').value = key;
+
+      const monitorCard = document.getElementById('db-monitor-card');
+      if (!currentUser || currentUser.email !== 'admin@test.com') {
+        if (monitorCard) monitorCard.classList.add('hidden');
+        return;
+      }
+
+      if (monitorCard) monitorCard.classList.remove('hidden');
+
+      try {
+        // Set loading states
+        document.getElementById('db-monitor-type').innerText = 'Loading...';
+        document.getElementById('db-monitor-users-count').innerText = 'Loading...';
+        document.getElementById('db-monitor-path').innerText = 'Loading...';
+        document.getElementById('db-monitor-users-table').innerHTML = `
+          <tr>
+            <td colspan="3" class="py-6 text-center text-gray-500 font-semibold">Loading system records...</td>
+          </tr>
+        `;
+
+        const res = await axios.get('/api/admin/db-info', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const data = res.data;
+        if (data.status === 'success') {
+          window.adminUsersList = data.users || [];
+          document.getElementById('db-monitor-type').innerText = data.db_type || 'SQLite';
+          document.getElementById('db-monitor-users-count').innerText = `${data.counts.users} Users`;
+          document.getElementById('db-monitor-path').innerText = data.db_path || 'data.db';
+
+          const tbody = document.getElementById('db-monitor-users-table');
+          tbody.innerHTML = '';
+
+          if (data.users && data.users.length > 0) {
+            data.users.forEach(u => {
+              const dateStr = u.created_at ? new Date(u.created_at).toLocaleString() : 'N/A';
+              const tr = document.createElement('tr');
+              tr.className = 'border-b border-darkBorder/40 hover:bg-darkBorder/10 transition-colors';
+              
+              const orgName = u.org_name ? `<span class="text-[9px] text-softBlue block mt-0.5">${u.org_name}</span>` : '';
+              
+              tr.innerHTML = `
+                <td class="py-2.5 px-3 font-semibold text-white">
+                  ${u.name}
+                  ${orgName}
+                </td>
+                <td class="py-2.5 px-3 font-mono text-gray-400">${u.email}</td>
+                <td class="py-2.5 px-3 text-gray-500">${dateStr}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+          } else {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="3" class="py-6 text-center text-gray-500 font-semibold">No records found.</td>
+              </tr>
+            `;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load database admin monitor info", err);
+        document.getElementById('db-monitor-type').innerText = 'Error';
+        document.getElementById('db-monitor-users-count').innerText = 'Error';
+        document.getElementById('db-monitor-path').innerText = 'Failed to connect to admin endpoint';
+        document.getElementById('db-monitor-users-table').innerHTML = `
+          <tr>
+            <td colspan="3" class="py-6 text-center text-rose-400/80 font-semibold">
+              Error fetching database logs. Ensure you have administrator privileges.
+            </td>
+          </tr>
+        `;
+      }
     }
 
     function saveSettingsAPIKey() {
@@ -3575,10 +3891,265 @@
       alert("Settings parameters saved locally.");
     }
 
+    function exportUserLogsToCSV() {
+      const users = window.adminUsersList || [];
+      if (users.length === 0) {
+        alert("No user records available to export.");
+        return;
+      }
+
+      let csv = "ID,Name,Email,Created At,Phone,Title,Organization,Analyses Run\n";
+      users.forEach(u => {
+        const id = u.id || '';
+        const name = `"${(u.name || '').replace(/"/g, '""')}"`;
+        const email = `"${(u.email || '').replace(/"/g, '""')}"`;
+        const createdAt = `"${u.created_at ? new Date(u.created_at).toLocaleString() : ''}"`;
+        const phone = `"${(u.phone || '').replace(/"/g, '""')}"`;
+        const title = `"${(u.title || '').replace(/"/g, '""')}"`;
+        const orgName = `"${(u.org_name || '').replace(/"/g, '""')}"`;
+        const analysisCount = u.analysis_count || 0;
+        csv += `${id},${name},${email},${createdAt},${phone},${title},${orgName},${analysisCount}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `DataAgent_User_Logs_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // ==================== WEBSITE FEEDBACK WIDGET ====================
+    let feedbackRating = 0;
+
+    function setFeedbackRating(val) {
+      feedbackRating = val;
+      renderFeedbackStars(val);
+      
+      const labels = {
+        1: "Terrible - Needs major work",
+        2: "Poor - Disappointed",
+        3: "Average - Decent but basic",
+        4: "Good - Very satisfied",
+        5: "Excellent - Outstanding product!"
+      };
+      const labelEl = document.getElementById('feedback-rating-label');
+      if (labelEl) {
+        labelEl.innerText = labels[val] || "Click a star to rate";
+        labelEl.className = "text-[10px] text-emerald-400 font-bold tracking-wide mt-1 block animate-fade-in";
+      }
+    }
+    
+    function hoverFeedbackRating(val) {
+      renderFeedbackStars(val, true);
+    }
+    
+    // Reset stars back to selected feedbackRating value
+    function clearStarHover() {
+      renderFeedbackStars(feedbackRating);
+    }
+    
+    function renderFeedbackStars(rating, isHover = false) {
+      for (let i = 1; i <= 5; i++) {
+        const star = document.getElementById(`fb-star-${i}`);
+        if (!star) continue;
+        
+        if (i <= rating) {
+          star.classList.remove('text-gray-600');
+          star.classList.add(isHover ? 'text-amber-400' : 'text-[#F5C518]');
+          star.setAttribute('fill', isHover ? '#8A7029' : '#F5C518');
+        } else {
+          star.classList.remove('text-amber-400', 'text-[#F5C518]');
+          star.classList.add('text-gray-600');
+          star.removeAttribute('fill');
+        }
+      }
+    }
+
+    async function submitWebsiteFeedback(e) {
+      e.preventDefault();
+      
+      const category = document.getElementById('feedback-category').value;
+      const comment = document.getElementById('feedback-comments').value.trim();
+      
+      if (!category) {
+        alert("Please select a feedback category.");
+        return;
+      }
+      
+      if (feedbackRating === 0) {
+        alert("Please rate your experience using the star indicators.");
+        return;
+      }
+      
+      try {
+        await axios.post('/api/feedback', {
+          category: category,
+          rating: feedbackRating,
+          comment: comment
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Hide form and show success state
+        document.getElementById('feedback-form').classList.add('hidden');
+        document.getElementById('feedback-success-card').classList.remove('hidden');
+      } catch (err) {
+        console.error("Feedback submit error:", err);
+        alert("Failed to submit feedback. Local API offline or database read-only.");
+      }
+    }
+    
+    function resetFeedbackForm() {
+      document.getElementById('feedback-category').value = '';
+      document.getElementById('feedback-comments').value = '';
+      feedbackRating = 0;
+      renderFeedbackStars(0);
+      
+      const labelEl = document.getElementById('feedback-rating-label');
+      if (labelEl) {
+        labelEl.innerText = "Click a star to rate";
+        labelEl.className = "text-[10px] text-gray-500 font-medium italic block mt-1";
+      }
+      
+      document.getElementById('feedback-form').classList.remove('hidden');
+      document.getElementById('feedback-success-card').classList.add('hidden');
+    }
+
+    // ==================== SUPPORT TICKET SUBMISSION ====================
+    function submitSupportTicket(e) {
+      e.preventDefault();
+      
+      const subject = document.getElementById('contact-subject').value.trim();
+      const priority = document.getElementById('contact-priority').value;
+      const message = document.getElementById('contact-message').value.trim();
+      
+      if (!subject || !message) {
+        alert("Please enter a subject and details for your ticket request.");
+        return;
+      }
+      
+      const ticketId = Math.floor(10000 + Math.random() * 90000);
+      document.getElementById('support-ticket-id').innerText = ticketId;
+      
+      document.getElementById('contact-form').classList.add('hidden');
+      document.getElementById('contact-success-card').classList.remove('hidden');
+    }
+    
+    function resetContactForm() {
+      document.getElementById('contact-subject').value = '';
+      document.getElementById('contact-priority').value = 'Medium';
+      document.getElementById('contact-message').value = '';
+      
+      document.getElementById('contact-form').classList.remove('hidden');
+      document.getElementById('contact-success-card').classList.add('hidden');
+    }
+
+    // ==================== LANDING FOOTER MODALS ====================
+    function openLandingModal(type) {
+      const container = document.getElementById('landing-modal-container');
+      const title = document.getElementById('landing-modal-title');
+      const body = document.getElementById('landing-modal-body');
+      
+      if (!container || !title || !body) return;
+      
+      let modalTitle = "";
+      let modalBody = "";
+      
+      if (type === 'privacy') {
+        modalTitle = "Privacy Policy";
+        modalBody = `
+          <p><strong>Last Updated: June 25, 2026</strong></p>
+          <p>We process information to deliver corporate analytical reports. This includes profile metadata (organization name, email, credentials) and metric database spreadsheets (transactions, cost logs) uploaded by users.</p>
+          <p><strong>Storage and Data Hosting:</strong> All data uploaded via this application is stored locally inside your private SQLite database (<code>data.db</code>) located in the application server directory. We do not transmit or save your datasets to remote clouds. You retain complete custody of your organizational files.</p>
+          <p><strong>Google Gemini:</strong> If you enter your personal Google Gemini API Key in the Settings page, specific variables and parsed summaries will be sent to Google API servers to perform strategic SWOT reasoning and diagnostic audits.</p>
+        `;
+      } else if (type === 'terms') {
+        modalTitle = "Terms of Service";
+        modalBody = `
+          <p><strong>Last Updated: June 25, 2026</strong></p>
+          <p>By registering an account and running this local diagnostic server, you agree to comply with and be bound by these Terms of Service. If you disagree with any terms, please terminate the application process and delete the repository files.</p>
+          <p><strong>Use of Service:</strong> You are granted a personal, non-transferable, non-exclusive license to use this analytics shell for running corporate ledgers. You must not attempt to reverse engineer backend statistics scripts.</p>
+          <p><strong>API Usage:</strong> You are solely responsible for the costs incurred by the Google Gemini API keys you input into the system settings.</p>
+        `;
+      } else if (type === 'contact') {
+        modalTitle = "Contact Support";
+        modalBody = `
+          <p>Need help or have questions about the local diagnostic server? Feel free to reach out to our team.</p>
+          <p><strong>Email support:</strong> support@organalytics.ai (1-2 business days SLA response)</p>
+          <p><strong>WhatsApp Support:</strong> +91 98765 43210 (Mon-Fri, 10am - 7pm IST)</p>
+          <p><strong>Location:</strong> Kolkata, West Bengal, India</p>
+        `;
+      }
+      
+      title.innerText = modalTitle;
+      body.innerHTML = modalBody;
+      container.classList.remove('hidden');
+      lucide.createIcons();
+    }
+    
+    function closeLandingModal() {
+      const container = document.getElementById('landing-modal-container');
+      if (container) container.classList.add('hidden');
+    }
+
+    // ==================== RESPONSIVE MENU DRAWER TRIGGERS ====================
+    function toggleMobileLandingMenu() {
+      const drawer = document.getElementById('mobile-landing-drawer');
+      const icon = document.getElementById('mobile-landing-hamburger-icon');
+      if (!drawer) return;
+      
+      const isHidden = drawer.classList.contains('hidden');
+      if (isHidden) {
+        drawer.classList.remove('hidden');
+        if (icon) {
+          icon.setAttribute('data-lucide', 'x');
+        }
+      } else {
+        drawer.classList.add('hidden');
+        if (icon) {
+          icon.setAttribute('data-lucide', 'menu');
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function toggleMobileOptionsDrawer() {
+      const drawer = document.getElementById('mobile-options-drawer');
+      if (drawer) {
+        drawer.classList.toggle('hidden');
+      }
+    }
+
+    // ==================== BIND GLOBAL EVENTS ====================
+    window.selectTab = selectTab;
+    window.displayUserProfile = displayUserProfile;
+    window.saveUserProfileDetails = saveUserProfileDetails;
+    window.handleProfilePicChange = handleProfilePicChange;
+    window.selectPresetAvatar = selectPresetAvatar;
+    window.removeProfilePic = removeProfilePic;
+    
+    window.setFeedbackRating = setFeedbackRating;
+    window.hoverFeedbackRating = hoverFeedbackRating;
+    window.clearStarHover = clearStarHover;
+    window.submitWebsiteFeedback = submitWebsiteFeedback;
+    window.resetFeedbackForm = resetFeedbackForm;
+    
+    window.submitSupportTicket = submitSupportTicket;
+    window.resetContactForm = resetContactForm;
+    
+    window.openLandingModal = openLandingModal;
+    window.closeLandingModal = closeLandingModal;
+    window.toggleMobileLandingMenu = toggleMobileLandingMenu;
+    window.toggleMobileOptionsDrawer = toggleMobileOptionsDrawer;
+
     window.triggerShareDashboardLink = triggerShareDashboardLink;
     window.downloadLatestPDFReportPlaceholder = downloadLatestPDFReportPlaceholder;
     window.clearNotificationsList = clearNotificationsList;
     window.loadSettingsData = loadSettingsData;
     window.saveSettingsAPIKey = saveSettingsAPIKey;
+    window.exportUserLogsToCSV = exportUserLogsToCSV;
 
   

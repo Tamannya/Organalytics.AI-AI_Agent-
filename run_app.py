@@ -106,6 +106,42 @@ def migrate_db():
         except sqlite3.OperationalError:
             pass
         
+        # Add profile columns to users
+        for col_def in [
+            "ALTER TABLE users ADD COLUMN phone TEXT",
+            "ALTER TABLE users ADD COLUMN profile_pic TEXT",
+            "ALTER TABLE users ADD COLUMN title TEXT",
+            "ALTER TABLE users ADD COLUMN bio TEXT"
+        ]:
+            try:
+                cursor.execute(col_def)
+            except sqlite3.OperationalError:
+                pass
+                
+        # Add details columns to organizations
+        for col_def in [
+            "ALTER TABLE organizations ADD COLUMN website TEXT",
+            "ALTER TABLE organizations ADD COLUMN address TEXT",
+            "ALTER TABLE organizations ADD COLUMN description TEXT"
+        ]:
+            try:
+                cursor.execute(col_def)
+            except sqlite3.OperationalError:
+                pass
+                
+        # Create feedback table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            category TEXT NOT NULL,
+            rating INTEGER NOT NULL,
+            comment TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+        """)
+
         # Add vision columns to analyses
         for col_def in [
             "ALTER TABLE analyses ADD COLUMN data_source TEXT DEFAULT 'csv'",
@@ -208,7 +244,11 @@ def api_login(payload: LoginRequest):
             "id": user['id'], 
             "name": user['name'], 
             "email": user['email'], 
-            "theme": user['theme'] or "midnight"
+            "theme": user['theme'] or "midnight",
+            "phone": user['phone'] or "" if 'phone' in user.keys() else "",
+            "profile_pic": user['profile_pic'] or "" if 'profile_pic' in user.keys() else "",
+            "title": user['title'] or "" if 'title' in user.keys() else "",
+            "bio": user['bio'] or "" if 'bio' in user.keys() else ""
         }
         return {
             "message": "Login successful",
@@ -226,6 +266,132 @@ def api_update_theme(payload: ThemeRequest, user_id: int = Depends(get_current_u
         cursor.execute("UPDATE users SET theme = ? WHERE id = ?", (payload.theme, user_id))
         conn.commit()
     return {"message": "Theme updated successfully"}
+
+class UpdateProfileRequest(BaseModel):
+    name: str
+    email: str
+    phone: Optional[str] = ""
+    profile_pic: Optional[str] = ""
+    title: Optional[str] = ""
+    bio: Optional[str] = ""
+    orgName: Optional[str] = ""
+    orgIndustry: Optional[str] = ""
+    orgSize: Optional[str] = ""
+    orgWebsite: Optional[str] = ""
+    orgAddress: Optional[str] = ""
+    orgDescription: Optional[str] = ""
+
+class FeedbackRequest(BaseModel):
+    category: str
+    rating: int
+    comment: Optional[str] = ""
+
+@app.get("/api/user/profile")
+def api_get_profile(user_id: int = Depends(get_current_user_id)):
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, name, email, theme, phone, profile_pic, title, bio FROM users WHERE id = ?", (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+            
+        cursor.execute("SELECT name, industry, size, website, address, description FROM organizations WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,))
+        org = cursor.fetchone()
+        
+        org_obj = {}
+        if org:
+            org_obj = {
+                "name": org["name"],
+                "industry": org["industry"],
+                "size": org["size"],
+                "website": org["website"] or "",
+                "address": org["address"] or "",
+                "description": org["description"] or ""
+            }
+        else:
+            org_obj = {
+                "name": "",
+                "industry": "",
+                "size": "",
+                "website": "",
+                "address": "",
+                "description": ""
+            }
+            
+        return {
+            "user": {
+                "id": user["id"],
+                "name": user["name"],
+                "email": user["email"],
+                "theme": user["theme"] or "midnight",
+                "phone": user["phone"] or "",
+                "profile_pic": user["profile_pic"] or "",
+                "title": user["title"] or "",
+                "bio": user["bio"] or ""
+            },
+            "organization": org_obj
+        }
+
+@app.put("/api/user/profile")
+def api_update_profile(payload: UpdateProfileRequest, user_id: int = Depends(get_current_user_id)):
+    with get_db() as conn:
+        cursor = conn.cursor()
+        # Check email conflict
+        cursor.execute("SELECT id FROM users WHERE email = ? AND id != ?", (payload.email, user_id))
+        conflict = cursor.fetchone()
+        if conflict:
+            raise HTTPException(status_code=400, detail="User with this email already exists.")
+            
+        cursor.execute(
+            """UPDATE users 
+               SET name = ?, email = ?, phone = ?, profile_pic = ?, title = ?, bio = ? 
+               WHERE id = ?""",
+            (payload.name, payload.email, payload.phone, payload.profile_pic, payload.title, payload.bio, user_id)
+        )
+        
+        # Update or insert organization
+        if payload.orgName:
+            cursor.execute("SELECT id FROM organizations WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,))
+            org = cursor.fetchone()
+            if org:
+                cursor.execute(
+                    """UPDATE organizations 
+                       SET name = ?, industry = ?, size = ?, website = ?, address = ?, description = ? 
+                       WHERE id = ?""",
+                    (payload.orgName, payload.orgIndustry, payload.orgSize, payload.orgWebsite, payload.orgAddress, payload.orgDescription, org["id"])
+                )
+            else:
+                cursor.execute(
+                    """INSERT INTO organizations (user_id, name, industry, size, website, address, description) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                    (user_id, payload.orgName, payload.orgIndustry, payload.orgSize, payload.orgWebsite, payload.orgAddress, payload.orgDescription)
+                )
+        conn.commit()
+        
+    return {
+        "message": "Profile and organization details updated successfully",
+        "user": {
+            "id": user_id,
+            "name": payload.name,
+            "email": payload.email,
+            "phone": payload.phone,
+            "profile_pic": payload.profile_pic,
+            "title": payload.title,
+            "bio": payload.bio
+        }
+    }
+
+@app.post("/api/feedback")
+def api_save_feedback(payload: FeedbackRequest, user_id: int = Depends(get_current_user_id)):
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """INSERT INTO feedback (user_id, category, rating, comment) 
+               VALUES (?, ?, ?, ?)""",
+            (user_id, payload.category, payload.rating, payload.comment)
+        )
+        conn.commit()
+    return {"message": "Feedback submitted successfully"}
 
 class ForgotPasswordRequest(BaseModel):
     email: str
@@ -794,6 +960,55 @@ def api_get_public_report(report_id: int):
             "report_json": json.loads(report["report_json"]),
             "recommendations": recs,
             "created_at": report["created_at"]
+        }
+
+@app.get("/api/admin/db-info")
+def api_admin_db_info(user_id: int = Depends(get_current_user_id)):
+    with get_db() as conn:
+        cursor = conn.cursor()
+        
+        # Verify the user is admin@test.com
+        cursor.execute("SELECT email FROM users WHERE id = ?", (user_id,))
+        user_row = cursor.fetchone()
+        if not user_row or user_row['email'] != 'admin@test.com':
+            raise HTTPException(status_code=403, detail="Forbidden: Administrator access required.")
+
+        
+        # Count users
+        cursor.execute("SELECT COUNT(*) as cnt FROM users")
+        user_count = cursor.fetchone()['cnt']
+        
+        # Count organizations
+        cursor.execute("SELECT COUNT(*) as cnt FROM organizations")
+        org_count = cursor.fetchone()['cnt']
+        
+        # Count analyses
+        cursor.execute("SELECT COUNT(*) as cnt FROM analyses")
+        analysis_count = cursor.fetchone()['cnt']
+        
+        # Get all users with their organization name and recent analysis counts
+        cursor.execute("""
+            SELECT u.id, u.name, u.email, u.created_at, u.phone, u.title,
+                   o.name as org_name,
+                   (SELECT COUNT(*) FROM analyses a WHERE a.org_id = o.id) as analysis_count
+            FROM users u
+            LEFT JOIN organizations o ON o.user_id = u.id
+            ORDER BY u.id DESC
+        """)
+        users = [dict(row) for row in cursor.fetchall()]
+        
+        db_abs_path = os.path.abspath(DB_FILE)
+        
+        return {
+            "status": "success",
+            "db_type": "SQLite",
+            "db_path": db_abs_path,
+            "counts": {
+                "users": user_count,
+                "organizations": org_count,
+                "analyses": analysis_count
+            },
+            "users": users
         }
 
 # Serves static web frontend folder

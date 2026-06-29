@@ -13,6 +13,7 @@ import {
   runSimulation,
   chatWithReport
 } from '../controllers/reportController.js';
+import { getDbInfo } from '../controllers/authController.js';
 import { authenticateToken } from '../middlewares/auth.js';
 
 const router = express.Router();
@@ -63,5 +64,6 @@ router.post('/vision/extract', authenticateToken, uploadVision.single('file'), e
 router.post('/vision/confirm-and-analyze', authenticateToken, confirmVisionAnalysis);
 router.post('/simulate', authenticateToken, runSimulation);
 router.post('/reports/:id/chat', authenticateToken, chatWithReport);
+router.get('/admin/db-info', authenticateToken, getDbInfo);
 
 export default router;
